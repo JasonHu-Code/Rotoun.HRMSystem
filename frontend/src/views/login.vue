@@ -1,7 +1,10 @@
 <template>
   <div class="login">
-    <!-- 动态背景层：原图缓慢位移 + 流动光斑 + 漂浮微尘，纯 CSS 实现，不引第三方库 -->
+    <!-- 动态背景层：原图推拉 + 光带扫过 + 流动光斑 + 漂浮微尘，纯 CSS 实现，不引第三方库 -->
     <div class="login-bg" aria-hidden="true">
+      <div class="bg-photo"></div>
+      <div class="sweep sweep-1"></div>
+      <div class="sweep sweep-2"></div>
       <div class="glow glow-1"></div>
       <div class="glow glow-2"></div>
       <div class="glow glow-3"></div>
@@ -254,68 +257,115 @@ onMounted(() => {
   background: #2f7fe8;
 }
 
-// 背景图层单独抽出：图片做极缓慢推拉，叠加上面的光斑与微尘
+// 背景容器只负责裁切与定位，自身不做动画：
+// 若让父级缩放，子元素的位移会被叠加放大，调起来互相干扰
 .login-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+// 底图单独一层做推拉。
+// 幅度和速度是关键：1.02 -> 1.14 / 24s 才有方向感；
+// 之前的 1.03 -> 1.12 / 42s 属于"匀速慢缩放"，人眼几乎没有参照物，看起来就是静态图。
+.bg-photo {
+  position: absolute;
+  inset: 0;
   background-image: url('../assets/images/login-background.jpg');
   background-size: cover;
   background-position: center;
-  animation: bg-drift 42s ease-in-out infinite alternate;
+  animation: bg-drift 24s ease-in-out infinite alternate;
   will-change: transform;
+}
+
+// 斜向光带扫过：整屏最容易被感知的动效，也是让背景"活"起来的主力
+.sweep {
+  position: absolute;
+  top: -25%;
+  left: -40vw;
+  width: 32vw;
+  height: 150%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.16) 42%,
+    rgba(255, 255, 255, 0.3) 52%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(24px);
+  animation: sweep-x 13s linear infinite;
+}
+
+// 第二条更细更慢、错开相位，避免节奏过于机械
+.sweep-2 {
+  width: 18vw;
+  opacity: 0.65;
+  animation-duration: 19s;
+  animation-delay: -7s;
 }
 
 .glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(70px);
-  mix-blend-mode: screen;
+  filter: blur(64px);
   pointer-events: none;
 }
 
+// 注意：原设计用了 mix-blend-mode: screen，但背景本身是高明度天蓝，
+// screen 叠上去几乎等于没有——这是"看不出变化"的第二个原因。改为普通混合 + 控制 alpha。
 .glow-1 {
-  width: 44vw;
-  height: 44vw;
-  left: -12vw;
-  top: -14vw;
-  background: radial-gradient(circle, rgba(126, 200, 255, 0.85) 0%, rgba(126, 200, 255, 0) 68%);
-  animation: glow-drift-a 26s ease-in-out infinite;
+  width: 46vw;
+  height: 46vw;
+  left: -14vw;
+  top: -16vw;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(160, 215, 255, 0) 70%);
+  animation: glow-drift-a 14s ease-in-out infinite;
 }
 
 .glow-2 {
-  width: 38vw;
-  height: 38vw;
-  right: -10vw;
-  bottom: -12vw;
-  background: radial-gradient(circle, rgba(255, 158, 92, 0.55) 0%, rgba(255, 158, 92, 0) 70%);
-  animation: glow-drift-b 32s ease-in-out infinite;
+  width: 40vw;
+  height: 40vw;
+  right: -12vw;
+  bottom: -14vw;
+  background: radial-gradient(circle, rgba(255, 170, 110, 0.38) 0%, rgba(255, 170, 110, 0) 72%);
+  animation: glow-drift-b 17s ease-in-out infinite;
 }
 
 .glow-3 {
-  width: 30vw;
-  height: 30vw;
-  left: 42%;
-  top: 6%;
-  background: radial-gradient(circle, rgba(90, 170, 255, 0.6) 0%, rgba(90, 170, 255, 0) 72%);
-  animation: glow-drift-c 22s ease-in-out infinite;
+  width: 32vw;
+  height: 32vw;
+  left: 40%;
+  top: 4%;
+  background: radial-gradient(circle, rgba(120, 190, 255, 0.45) 0%, rgba(120, 190, 255, 0) 72%);
+  animation: glow-drift-c 12s ease-in-out infinite;
 }
 
 .particles {
   position: absolute;
   inset: -30%;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 1px, transparent 1.6px);
-  background-size: 84px 84px;
-  opacity: 0.16;
-  animation: particle-rise 60s linear infinite;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.85) 1.6px, transparent 2px);
+  background-size: 96px 96px;
+  opacity: 0.3;
+  animation: particle-rise 26s linear infinite;
 }
 
 @keyframes bg-drift {
   from {
-    transform: scale(1.03) translate3d(0, 0, 0);
+    transform: scale(1.02) translate3d(0, 0, 0);
   }
   to {
-    transform: scale(1.12) translate3d(-1.6%, -1.2%, 0);
+    transform: scale(1.14) translate3d(-2.6%, -2%, 0);
+  }
+}
+
+@keyframes sweep-x {
+  from {
+    transform: translate3d(0, 0, 0) rotate(16deg);
+  }
+  to {
+    transform: translate3d(160vw, 0, 0) rotate(16deg);
   }
 }
 
@@ -325,17 +375,17 @@ onMounted(() => {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(6vw, 4vh, 0) scale(1.12);
+    transform: translate3d(11vw, 7vh, 0) scale(1.18);
   }
 }
 
 @keyframes glow-drift-b {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) scale(1.05);
+    transform: translate3d(0, 0, 0) scale(1.08);
   }
   50% {
-    transform: translate3d(-5vw, -5vh, 0) scale(0.94);
+    transform: translate3d(-9vw, -8vh, 0) scale(0.9);
   }
 }
 
@@ -345,16 +395,17 @@ onMounted(() => {
     transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(-4vw, 6vh, 0);
+    transform: translate3d(-8vw, 10vh, 0);
   }
 }
 
+// 位移量取贴图尺寸的整数倍才能无缝衔接：96 × 10 = 960
 @keyframes particle-rise {
   from {
     background-position: 0 0;
   }
   to {
-    background-position: 0 -840px;
+    background-position: -96px -960px;
   }
 }
 
@@ -381,12 +432,17 @@ onMounted(() => {
 
 // 尊重系统的"减少动态效果"设置：无障碍要求，也避免低配机器掉帧
 @media (prefers-reduced-motion: reduce) {
-  .login-bg,
+  .bg-photo,
+  .sweep,
   .glow,
   .particles,
   .login-form,
   .title-brand .login-logo {
     animation: none !important;
+  }
+
+  .sweep {
+    opacity: 0;
   }
 }
 
