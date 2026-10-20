@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,10 +34,14 @@ public class HrDataPermissionRegistrar implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        List<InnerInterceptor> interceptors = mybatisPlusInterceptor.getInterceptors();
-        if (interceptors.contains(hrDataPermissionInterceptor)) {
+        List<InnerInterceptor> current = mybatisPlusInterceptor.getInterceptors();
+        if (current.contains(hrDataPermissionInterceptor)) {
             return;
         }
+        // 为什么不能直接 current.add(...)：MybatisPlusInterceptor#getInterceptors() 返回的是
+        // Collections.unmodifiableList 视图，直接 add 会抛 UnsupportedOperationException。
+        // 必须复制成可变列表，排好序后用 setInterceptors 整体替换回去。
+        List<InnerInterceptor> interceptors = new ArrayList<>(current);
         int paginationIndex = -1;
         for (int i = 0; i < interceptors.size(); i++) {
             if (interceptors.get(i) instanceof PaginationInnerInterceptor) {
@@ -49,6 +54,7 @@ public class HrDataPermissionRegistrar implements InitializingBean {
         } else {
             interceptors.add(hrDataPermissionInterceptor);
         }
+        mybatisPlusInterceptor.setInterceptors(interceptors);
         log.info("[HR数据权限] 已挂载 HrDataPermissionInterceptor，位置 {}，当前拦截器链 {}",
             paginationIndex >= 0 ? paginationIndex : interceptors.size() - 1, interceptors);
     }
