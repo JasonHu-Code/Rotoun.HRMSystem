@@ -1,7 +1,11 @@
 --- # 监控中心配置
+# 为什么关掉：本项目没有引入 Spring Boot Admin 服务端模块（rotoun-modules 下无 monitor），
+# 开着客户端会每 10s 去连 http://localhost:9090/admin 注册，连不上就刷一大段
+# RestClientException(Connection refused) 堆栈。它只是 WARN，不影响启动，
+# 但会把真正的错误淹掉。将来引入监控服务端时，把 enabled 改回 true 即可。
 spring.boot.admin.client:
   # 增加客户端开关
-  enabled: true
+  enabled: false
   url: http://localhost:9090/admin
   instance:
     service-host-type: IP

@@ -2,9 +2,11 @@
 spring.servlet.multipart.location: /rotoun/server/temp
 
 --- # 监控中心配置
+# 同 dev：本项目未引入 Spring Boot Admin 服务端模块，开着只会刷连接失败堆栈。
+# 将来上监控服务端时改回 enabled: true。
 spring.boot.admin.client:
   # 增加客户端开关
-  enabled: true
+  enabled: false
   url: http://localhost:9090/admin
   instance:
     service-host-type: IP
