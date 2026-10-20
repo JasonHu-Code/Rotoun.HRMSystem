@@ -12,11 +12,29 @@
 | MyBatis-Plus | **3.5.16** |
 | 认证 | **Sa-Token + JWT**（`StpLogicJwtForSimple` + `PlusSaTokenDao`） |
 | 缓存 / 分布式锁 | Redis 7 + Redisson 3.52 |
-| 任务调度 | SnailJob 1.10 |
+| 工作流 | Warm-Flow 1.8.9（底座自带；v1.0 计划不启用，**待拍板**） |
+| 任务调度 | SnailJob 1.10（底座自带；v1.0 计划不启用，**待拍板**） |
 | 前端 | plus-ui **5.X**（5.6.2-2.6.2） |
 | Vue / Element Plus / Vite | 3.5.30 / 2.13.5 / 7.3.2 |
 | Node / pnpm | >= 20.19 / 10.x |
 | 数据库 | MySQL 8.0.16+，库名 **`rt-hrms`** |
+
+## 已做的项目化改动（相对上游脚手架）
+
+| # | 改动 | 文件 |
+|---|---|---|
+| 1 | 数据源 `ry-vue` → `rt-hrms` | `backend/ruoyi-admin/src/main/resources/application-dev.yml` |
+| 2 | Sa-Token 补 `timeout: 28800`、`active-timeout: 1800`、`is-read-body: false` | 同目录 `application.yml` |
+| 3 | 前端标题/Logo 改为「瑞堂人事管理系统 / Rotoun HRMS」 | `frontend/.env.development` / `.env.production` |
+| 4 | 前端包名改为 `rotoun-hrms-ui` | `frontend/package.json` |
+| 5 | 移除布局页的 WebSocket/SSE 初始化（token 曾拼在 URL 上，违反规范 7.4） | `frontend/src/layout/index.vue` |
+
+## M0 前待拍板
+
+1. **审批流**：自研 `approval_flow` 三张表，还是启用底座已带的 **Warm-Flow 1.8.9**？
+2. **定时任务**：**Spring Task + ShedLock**，还是启用底座已带的 **SnailJob 1.10**（独立 server）？
+
+技术方案 1.2 已按实际脚手架修正，两条都给了建议（自研 / Spring Task），等拍板后进 M0。
 
 ## 目录结构
 

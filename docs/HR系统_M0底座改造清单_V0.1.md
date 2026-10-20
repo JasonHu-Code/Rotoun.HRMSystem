@@ -550,54 +550,65 @@ SELECT COUNT(*) AS no_user_emp FROM employee WHERE sys_user_id IS NULL AND is_de
 
 ## 九、T-04 认证与 Token 头对齐清单（M0 第一天）
 
-### 9.1 一句话
+### 9.1 已核对脚手架的实际配置（2026-10-20）
 
-Sa-Token 默认 `token-name = satoken`、无前缀；项目文档写 `Authorization: Bearer`。**先查底座实际配置，再决定"改配置跟随文档"还是"改文档跟随底座"。推荐前者**——保持 `Authorization: Bearer`，与前端、网关、Swagger 的习惯一致。
+**RuoYi-Vue-Plus 5.6.2 不是 Sa-Token 默认配置**，实际是：
 
-> **本方案已于 2026-10-20 确认（方案 A）。** M0 第一天只做两件事：① 按 9.2 核对底座现有配置；② 按 9.9 跑 8 条用例。若底座已经是 `Authorization` + `Bearer`，无需改配置，只把结论记进项目文档。
+| 配置 | 位置 | 实际值 |
+|---|---|---|
+| token 名 | `ruoyi-admin/src/main/resources/application.yml` | `Authorization` |
+| token 前缀 | `ruoyi-common/ruoyi-common-satoken/src/main/resources/common-satoken.yml` | `"Bearer"` |
+| 认证实现 | `SaTokenConfig.java` | `StpLogicJwtForSimple`（JWT 简单模式）+ `PlusSaTokenDao`（Redis 存储） |
+| 读 cookie | `common-satoken.yml` | `false`（已关，符合安全要求） |
+| 读 body | `common-satoken.yml` | `true`（**需改 false**，禁止 URL 传参） |
+| 有效期 | `application.yml` | **未配置**（Sa-Token 默认 30 天） |
 
-### 9.2 先查底座（5 分钟，别猜）
+**结论：`Authorization: Bearer` 本来就成立，不需要改前缀、也不需要改成 uuid。** T-04 从"改协议"降级为"补三个参数"：`timeout`、`active-timeout`、`is-read-body: false`（已在本仓库 `application.yml` 补好）。
+
+> **本方案已于 2026-10-20 确认并落地配置。** M0 第一天只需按 9.2 复核、按 9.9 跑 8 条用例。
+
+### 9.2 复核命令（M0 第一天，1 分钟）
 
 ```bash
-# 1. yml 里的 sa-token 配置
 grep -rn -A 20 "sa-token:" --include=application*.yml --include=application*.yaml .
-
-# 2. Java 侧是否另有覆盖（有些底座用 @Bean 改配置）
-grep -rn "SaTokenConfig\|tokenName\|tokenPrefix\|isReadCookie" --include=*.java .
-
-# 3. 登录返回体字段
-grep -rn "class LoginVo\|access_token\|expire_in\|tokenName\|tokenPrefix" --include=*.java .
+grep -rn "token-prefix" --include=*.yml .
+grep -rn "StpLogicJwtFor\|PlusSaTokenDao" --include=*.java .
 ```
 
-| 查到的现状 | 处理 |
-|---|---|
-| `token-name: Authorization` + `token-prefix: Bearer` | 已对齐，只需把结论写进文档，不改代码 |
-| `token-name: Authorization`，无 `token-prefix` | 前端**不要**加 `Bearer `；或补上 prefix，二选一 |
-| 默认 `satoken` / 无配置 | 按 9.3 配置成 `Authorization` + `Bearer` |
-| Java Config 覆盖了 yml | 以 Java Config 为准，先改代码再改 yml |
+| 检查项 | 期望（当前脚手架） | 不符合时 |
+|---|---|---|
+| `token-name` | `Authorization` | 改 `application.yml` |
+| `token-prefix` | `Bearer`（`common-satoken.yml`） | 补 `token-prefix: "Bearer"` |
+| 认证实现 | `StpLogicJwtForSimple` + `PlusSaTokenDao` | 确认没有被换成 Stateless（无状态 JWT 不支持 kickout） |
+| `is-read-cookie` | `false` | 改 `false` |
+| `is-read-body` | `false`（本次已覆盖） | 改 `false`，防 URL 传参 |
 
-### 9.3 推荐配置（方案 A：`Authorization` + `Bearer`）
+### 9.3 实际配置（已落地）
 
 ```yaml
+# 1) application.yml（已有 + 本次新增）
 sa-token:
-  token-name: Authorization      # 同时是 cookie 名
-  token-prefix: Bearer           # 客户端发 "Bearer <token>"，中间恰好一个空格
-  timeout: 28800                 # 8 小时（绝对有效期）
-  active-timeout: 1800           # 30 分钟无操作冻结；-1 表示关闭
-  is-concurrent: true            # 允许 PC 与后续 H5 同时在线
-  is-share: false                # 每次登录新 token，便于单独踢下线
-  token-style: uuid              # 不用 jwt：jwt 无状态，踢下线还要额外黑名单
+  token-name: Authorization      # 已有
+  is-concurrent: true            # 已有
+  is-share: false                # 已有
+  jwt-secret-key: ...            # 已有；生产必须换成随机 32 位以上
+  timeout: 28800                 # 新增：8 小时绝对有效期
+  active-timeout: 1800           # 新增：30 分钟无操作冻结
+  is-read-body: false            # 新增：禁止 URL 传参（覆盖内置 true）
+
+# 2) common-satoken.yml（内置，不改）
+sa-token:
+  token-prefix: "Bearer"
   is-read-header: true
-  is-read-cookie: false          # 只认 Header，避免浏览器自动带 cookie 形成第二入口
-  is-read-body: false
-  is-log: false
+  is-read-cookie: false
+  dynamic-active-timeout: true
 ```
 
-三个易错点：
+三个要点：
 
-1. `token-prefix` 是**字符串前缀比较**，大小写和空格必须完全一致；前端不要拼两次 `Bearer`。
-2. `is-read-cookie: false` 必须显式关掉，否则 cookie 也能通过鉴权，等于多一个不受控入口。
-3. `token-style: uuid` 而不是 `jwt`：本项目要支持"离职立即踢下线"，uuid + Redis 一句 `kickout` 就能做到；jwt 还要维护黑名单。
+1. **不要改成 `token-style: uuid`**。JWT Simple 仍通过 `PlusSaTokenDao` 把会话存 Redis，`StpUtil.kickout(userId)` 可用；改成 uuid 反而要动 `SaTokenConfig`，没必要。
+2. `token-prefix` 是**字符串前缀比较**，大小写和空格必须完全一致；前端不要拼两次 `Bearer`。
+3. `is-read-cookie: false` 已在 `common-satoken.yml` 关掉；`is-read-body` 原为 `true`，已在 `application.yml` 覆盖为 `false`（若启动后发现未生效，说明 `@PropertySource` 优先级更高，需直接改 `common-satoken.yml`）。
 
 ### 9.4 四个环节必须一致
 
@@ -681,8 +692,23 @@ redis.delete("hr:datascope:" + userId);
 ### 9.10 文档侧怎么收口
 
 - `接口设计 2.5` 已写 `Authorization: Bearer <token>` → **保持不动**；
-- `技术方案 5.1` 的"Sa-Token 或 JWT"收敛为 **Sa-Token + uuid**，并注明 `timeout/active-timeout` 与 `loginId=userId`；
-- 如果底座实际是 `satoken` 头且不愿改，就反过来同时改这两份文档 + 前端拦截器——**绝不允许后端一套、前端一套**。
+- `技术方案 5.1` 已收敛为 **Sa-Token + JWT Simple（`StpLogicJwtForSimple` + `PlusSaTokenDao`）**，并注明 `timeout/active-timeout` 与 `loginId=userId`；
+- 前端 `src/utils/request.ts` 已发 `Authorization: Bearer <token>`，与后端一致，不改。
+
+### 9.11 已发现的脚手架安全问题（M0 处理）
+
+`frontend/src/utils/sse.ts` 与 `websocket.ts` 把 token 拼在 URL 上：
+
+```
+?Authorization=Bearer <token>
+```
+
+这违反规范 7.4「禁止 URL 传参」——token 会进 Nginx access log、浏览器历史、Referer。
+
+处理（已执行，2026-10-20）：
+
+- v1.0 不需要实时推送，已移除 `frontend/src/layout/index.vue` 里 `initWebSocket` / `initSSE` 的 import 与两个 `onMounted` 调用；
+- `frontend/src/utils/sse.ts`、`websocket.ts` 文件暂留（已无引用）。后续启用时改为一次性 ticket：登录后申请短 TTL、单次有效的 ticket，URL 只带 ticket，服务端换取真实 token。
 
 ---
 

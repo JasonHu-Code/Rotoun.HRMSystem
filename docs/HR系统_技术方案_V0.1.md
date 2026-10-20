@@ -3,7 +3,7 @@
 > 编制日期：2026-10-20
 > 输入：《需求清单 V0.1.2》（v1.0 P0 80 条）、《数据库设计 V0.1》（59 表）、《接口设计 V0.1》（174 接口）、《考勤引擎设计 V0.1》、《M0 底座改造清单 V0.1》
 > 适用规范：《全流程统一开发规范 V1.1》
-> 状态：**已确认**（2026-10-20）。底座机制已确认：RuoYi-Vue-Plus 5.x + `PlusDataPermissionHandler`。T-01 已由《HR系统_M0底座改造清单_V0.1.md》关闭；8 张事务表快照列已落脚本并通过 MySQL 实测；可进 M0。
+> 状态：**已确认**（2026-10-20）。底座机制已确认：RuoYi-Vue-Plus **5.6.2** + `PlusDataPermissionHandler`；脚手架实际带 **Spring Boot 3.5.16 / Warm-Flow 1.8.9 / SnailJob 1.10 / Sa-Token JWT Simple**，差异已按实际修正（见 1.2、3.1）。T-01 已由《HR系统_M0底座改造清单_V0.1.md》关闭；8 张事务表快照列已落脚本并通过 MySQL 实测；可进 M0。
 
 ---
 
@@ -13,16 +13,16 @@
 
 | 层 | 选型 | 版本 | 依据 |
 |---|---|---|---|
-| 运行时 | JDK | **21 (Temurin LTS)** | 本机已装 `21.0.12.1`；RuoYi-Vue-Plus 5.x 要求 17+ |
-| 框架 | Spring Boot | **3.4.x** | 与 RuoYi-Vue-Plus 5.x 对齐 |
-| 底座 | **RuoYi-Vue-Plus** | 5.x | 规范 1.1「优先复用」；SRM 已在用，团队零学习成本 |
-| ORM | MyBatis-Plus | 3.5.x | RuoYi 标配 |
+| 运行时 | JDK | **17（脚手架基线）/ 21（本机运行）** | 脚手架 `java.version=17`；本机 JDK 21 向下兼容 |
+| 框架 | Spring Boot | **3.5.16** | 脚手架 5.6.2 实际版本（2026-10-20 核对） |
+| 底座 | **RuoYi-Vue-Plus** | **5.6.2（分支 5.X）** | 规范 1.1「优先复用」；SRM 已在用，团队零学习成本 |
+| ORM | MyBatis-Plus | **3.5.16** | 脚手架 5.6.2 实际版本 |
 | 数据库 | MySQL | **8.0.16+** | 用到 CHECK 约束；本机 8.0.46 已验证 |
-| 缓存 | Redis | 7.x | Token、数据权限、规则解析结果 |
-| 前端框架 | Vue | **3.5** | RuoYi-Vue-Plus 默认 |
-| 构建 | Vite | 5.x | |
-| 状态管理 | Pinia | 2.x | |
-| UI 组件 | **Element Plus** | 2.8.x | 见 1.2 偏离说明 |
+| 缓存 | Redis | 7.x | Token、数据权限、规则解析结果（Redisson 3.52） |
+| 前端框架 | Vue | **3.5.30** | plus-ui 5.X 实际版本 |
+| 构建 | Vite | **7.3.2** | plus-ui 5.X 实际版本 |
+| 状态管理 | Pinia | 2.x+ | 以 plus-ui 5.X 锁定版本为准 |
+| UI 组件 | **Element Plus** | **2.13.5** | 见 1.2 偏离说明 |
 | 图标 | **lucide-vue-next** | 最新 | 规范 2.3 硬要求，禁 emoji |
 | 图表 | ECharts | 5.x | 看板与报表 |
 | 部署 | Docker Compose | — | 单机部署，见第十一节 |
@@ -31,7 +31,7 @@
 
 理由：302 人、11 万条日结果/年、22 万条打卡流水/年。**这个量级上一套 Spring Cloud 或 MQ，运维成本会超过它解决的问题。** 单机 + 单库 + 1 个应用实例足够，真要扩容时先加缓存和索引。
 
-### 1.2 三处偏离规范的裁定
+### 1.2 三处偏离规范的裁定（2026-10-20 按实际脚手架修正）
 
 方案先行阶段必须把冲突摊开说。以下三处与规范 V1.1 有出入，**我的判断和理由如下**，需要你认可。
 
@@ -54,21 +54,31 @@
 
 即：**视觉规范全遵守，只把"组件库"这一条替换为与底座一致的选择。**
 
-#### 偏离二：审批流自研轻量状态机，不用 Flowable
+#### 偏离二：审批流自研轻量状态机，不启用 Warm-Flow
 
-RuoYi-Vue-Plus 自带 Flowable 模块。但：
+**（2026-10-20 脚手架核对修正：底座自带的是 Warm-Flow 1.8.9，不是 Flowable。）**
 
-- Flowable 会引入 **30+ 张表**（ACT_RE_*、ACT_RU_*、ACT_HI_*…）
+RuoYi-Vue-Plus 5.6.2 自带 `ruoyi-workflow` 模块（Warm-Flow 1.8.9），提供流程定义、实例、任务、表单、流程图设计器。
+
+但：
+
 - 本项目的审批场景是「入职、转正、离职、调岗、调薪、请假、加班、申诉、考勤调整」，**审批链 2 级为主，最深 3 级**
 - 没有会签、没有并行网关、没有子流程、没有动态加签
+- Warm-Flow 虽比 Flowable 轻，但仍会引入一套流程表、设计器 UI 与学习成本，且审批人规则（直属上级、组织负责人）还要二次开发
 
-用 Flowable 等于为了 10% 的功能引入 10 倍的复杂度。**用自研的 `approval_flow` + `approval_instance` 三张表足够**（已在数据库设计中）。
+**结论：v1.0 不启用 `ruoyi-workflow`**，用自研的 `approval_flow` + `approval_flow_node` + `approval_instance` 三张表足够（已在数据库设计中）。理由：审批链简单、审批人规则与 `organization` / `position` 强耦合，自研更直接。
 
-何时该换成 Flowable：出现"同一单据多人会签""按金额走不同分支且分支超过 3 层""需要图形化建模"。现在都不满足。
+何时该换成 Warm-Flow：出现"同一单据多人会签""按金额走不同分支且分支超过 3 层""需要业务人员图形化建模"。现在都不满足。
 
-#### 偏离三：定时任务用 Spring Task + ShedLock，不用 XXL-Job
+> **这条需要你拍板**：用自研三张表，还是直接用底座已带的 Warm-Flow？我建议自研；Warm-Flow 已集成、能省开发量，也可以先用它跑通再决定。
 
-XXL-Job 需要一个独立的调度中心（另一个 Java 服务 + 一套表 + 一个管理界面）。
+#### 偏离三：定时任务用 Spring Task + ShedLock，不启用 SnailJob
+
+**（2026-10-20 脚手架核对修正：底座自带的是 SnailJob 1.10，不是 XXL-Job。）**
+
+RuoYi-Vue-Plus 5.6.2 自带 `ruoyi-job`（SnailJob 客户端）+ `ruoyi-extend/ruoyi-snailjob-server`（独立调度中心）。
+
+SnailJob 同样需要一个独立 Java 服务 + 一套表 + 管理界面，部署成本与 XXL-Job 同级。
 
 本项目定时任务只有 4 类：
 
@@ -79,7 +89,9 @@ XXL-Job 需要一个独立的调度中心（另一个 Java 服务 + 一套表 + 
 | 打卡数据拉取（P1） | 5–10 分钟 |
 | 月结前全量重算 | 每月一次，手动触发 |
 
-**用 `@Scheduled` + ShedLock（Redis 实现分布式锁）即可**，防止多实例重复执行。上 XXL-Job 是给不需要集群调度的系统上集群调度。
+**结论：v1.0 不启用 SnailJob**，用 `@Scheduled` + ShedLock（Redis 实现分布式锁）即可，防止多实例重复执行。上独立调度中心是给不需要集群调度的系统上集群调度。
+
+> **这条需要你拍板**：不启用 SnailJob（省一个服务），还是直接用底座已带的 SnailJob（带可视化管理）？我建议前者，302 人单实例够用。
 
 ---
 
@@ -184,20 +196,20 @@ repository  复杂查询（多表 join、统计），用 XML
 
 | 依赖 | 版本 | 用途 |
 |---|---|---|
-| spring-boot-starter-web | 3.4.x | |
-| spring-boot-starter-validation | 3.4.x | 参数校验 |
-| spring-boot-starter-data-redis | 3.4.x | 缓存 |
-| mybatis-plus-boot-starter | 3.5.x | |
+| spring-boot-starter-web | 3.5.x | |
+| spring-boot-starter-validation | 3.5.x | 参数校验 |
+| spring-boot-starter-data-redis | 3.5.x | 缓存（底座实际用 Redisson 3.52） |
+| mybatis-plus-boot-starter | 3.5.16 | |
 | mysql-connector-j | 8.x | |
 | hutool-all | 5.8.x | 工具类 |
 | mapstruct | 1.6.x | DTO/VO 转换 |
 | lombok | 1.18.x | |
-| sa-token 或 spring-security | 按底座 | 认证 |
-| shedlock-spring + shedlock-provider-redis | 5.x | 分布式定时锁 |
-| easyexcel | 4.x | Excel 导入导出 |
-| knife4j | 4.x | 接口文档 |
+| sa-token-spring-boot3-starter + sa-token-jwt | 底座已带 | 认证（JWT Simple，`StpLogicJwtForSimple`） |
+| shedlock-spring + shedlock-provider-redis | 5.x | 分布式定时锁（本项目新增，不启用 SnailJob） |
+| fastexcel | 1.3.0 | Excel 导入导出（底座已带，替代 EasyExcel） |
+| springdoc-openapi + therapi-javadoc | 2.8.17 / 0.15.0 | 接口文档（底座已带，替代 knife4j） |
 
-**不引入**：Flowable、XXL-Job、RocketMQ、ShardingSphere、Elasticsearch。
+**不启用**：Warm-Flow（`ruoyi-workflow`）、SnailJob（`ruoyi-job` + `ruoyi-snailjob-server`）、RocketMQ、ShardingSphere、Elasticsearch。
 
 ### 3.2 前端关键依赖
 

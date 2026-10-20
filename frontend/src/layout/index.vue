@@ -27,8 +27,6 @@ import { AppMain, Navbar, Settings, TagsView } from './components';
 import { useAppStore } from '@/store/modules/app';
 import { useSettingsStore } from '@/store/modules/settings';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
-import { initWebSocket } from '@/utils/websocket';
-import { initSSE } from '@/utils/sse';
 
 const settingsStore = useSettingsStore();
 const theme = computed(() => settingsStore.theme);
@@ -73,15 +71,6 @@ onMounted(() => {
   nextTick(() => {
     navbarRef.value?.initTenantList();
   });
-});
-
-onMounted(() => {
-  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-  initWebSocket(protocol + window.location.host + import.meta.env.VITE_APP_BASE_API + '/resource/websocket');
-});
-
-onMounted(() => {
-  initSSE(import.meta.env.VITE_APP_BASE_API + '/resource/sse');
 });
 
 const handleClickOutside = () => {
