@@ -1,0 +1,42 @@
+# ---- Java / Maven ----
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+logs/
+temp/
+.mvn/wrapper/maven-wrapper.jar
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# ---- Node ----
+node_modules/
+dist/
+dist-ssr/
+.pnpm-store/
+*.local
+.eslintcache
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Env（.env.development / .env.production 为模板，保留）----
+.env.local
+.env.*.local
+
+# ---- Runtime ----
+uploads/
+*.pid
