@@ -31,6 +31,7 @@
 | 6 | 移除 `ruoyi-job` / `ruoyi-workflow` 模块与 admin 依赖（不启用 SnailJob / Warm-Flow） | `backend/pom.xml`、`ruoyi-admin/pom.xml`、`ruoyi-modules/pom.xml` |
 | 7 | 移除 `ruoyi-snailjob-server`；新增 ShedLock 7.10.1 + `ShedLockConfig` | `ruoyi-extend/pom.xml`、`web/config/ShedLockConfig.java` |
 | 8 | 补 `db/00_ruoyi_base.sql`（底座 25 张表，已移除 SnailJob 菜单） | `db/00_ruoyi_base.sql` |
+| 9 | 关闭底座多租户（HR 单租户，多组织靠 `organization` + 数据权限） | `application.yml` 的 `tenant.enable: false` |
 
 ## 已确认的技术取舍（2026-10-20）
 

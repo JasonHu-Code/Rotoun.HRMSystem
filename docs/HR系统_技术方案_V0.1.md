@@ -295,6 +295,8 @@ public interface FileStorage {
 
 这是本系统与通用后台最大的差异点，要单独实现。
 
+**前提：关闭底座多租户**（`tenant.enable: false`）。本系统是**单租户、多组织**；租户插件会给没有 `tenant_id` 的业务表追加条件，开着会直接报 SQL 错。多组织隔离靠 `organization` + `data_scope_rule`，不靠租户。
+
 **规则来源**：`data_scope_rule` 表，按角色配置。
 
 | scope_type | 含义 | 生成条件 |
