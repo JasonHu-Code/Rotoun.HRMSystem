@@ -70,7 +70,7 @@ RuoYi-Vue-Plus 5.6.2 自带 `ruoyi-workflow` 模块（Warm-Flow 1.8.9），提�
 
 何时该换成 Warm-Flow：出现"同一单据多人会签""按金额走不同分支且分支超过 3 层""需要业务人员图形化建模"。现在都不满足。
 
-> **这条需要你拍板**：用自研三张表，还是直接用底座已带的 Warm-Flow？我建议自研；Warm-Flow 已集成、能省开发量，也可以先用它跑通再决定。
+> **已确认（2026-10-20）：采用自研三张表，不启用 Warm-Flow。** 落地：`ruoyi-workflow` 已从 Maven reactor 与 `ruoyi-admin` 依赖移除，`warm-flow` 配置与 SpringDoc 工作流分组已清理。
 
 #### 偏离三：定时任务用 Spring Task + ShedLock，不启用 SnailJob
 
@@ -91,7 +91,7 @@ SnailJob 同样需要一个独立 Java 服务 + 一套表 + 管理界面，部�
 
 **结论：v1.0 不启用 SnailJob**，用 `@Scheduled` + ShedLock（Redis 实现分布式锁）即可，防止多实例重复执行。上独立调度中心是给不需要集群调度的系统上集群调度。
 
-> **这条需要你拍板**：不启用 SnailJob（省一个服务），还是直接用底座已带的 SnailJob（带可视化管理）？我建议前者，302 人单实例够用。
+> **已确认（2026-10-20）：不启用 SnailJob，改用 Spring Task + ShedLock 7.10.1。** 落地：`ruoyi-job` / `ruoyi-snailjob-server` 已从 reactor 移除，新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`，Redis provider）。
 
 ---
 

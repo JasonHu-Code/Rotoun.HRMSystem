@@ -28,13 +28,18 @@
 | 3 | 前端标题/Logo 改为「瑞堂人事管理系统 / Rotoun HRMS」 | `frontend/.env.development` / `.env.production` |
 | 4 | 前端包名改为 `rotoun-hrms-ui` | `frontend/package.json` |
 | 5 | 移除布局页的 WebSocket/SSE 初始化（token 曾拼在 URL 上，违反规范 7.4） | `frontend/src/layout/index.vue` |
+| 6 | 移除 `ruoyi-job` / `ruoyi-workflow` 模块与 admin 依赖（不启用 SnailJob / Warm-Flow） | `backend/pom.xml`、`ruoyi-admin/pom.xml`、`ruoyi-modules/pom.xml` |
+| 7 | 移除 `ruoyi-snailjob-server`；新增 ShedLock 7.10.1 + `ShedLockConfig` | `ruoyi-extend/pom.xml`、`web/config/ShedLockConfig.java` |
+| 8 | 补 `db/00_ruoyi_base.sql`（底座 25 张表，已移除 SnailJob 菜单） | `db/00_ruoyi_base.sql` |
 
-## M0 前待拍板
+## 已确认的技术取舍（2026-10-20）
 
-1. **审批流**：自研 `approval_flow` 三张表，还是启用底座已带的 **Warm-Flow 1.8.9**？
-2. **定时任务**：**Spring Task + ShedLock**，还是启用底座已带的 **SnailJob 1.10**（独立 server）？
+| # | 事项 | 结论 |
+|---|---|---|
+| 1 | 审批流 | **自研 `approval_flow` + `approval_flow_node` + `approval_instance` 三张表**，不启用 Warm-Flow 1.8.9 |
+| 2 | 定时任务 | **Spring Task + ShedLock 7.10.1**（Redis provider），不启用 SnailJob 1.10 |
 
-技术方案 1.2 已按实际脚手架修正，两条都给了建议（自研 / Spring Task），等拍板后进 M0。
+落地情况：`ruoyi-job` / `ruoyi-workflow` / `ruoyi-snailjob-server` 已从 Maven reactor 与 `ruoyi-admin` 依赖移除；`warm-flow` 配置与 SpringDoc 工作流分组已清理；新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`）。
 
 ## 目录结构
 
@@ -47,7 +52,7 @@ Rotoun.HRMSystem/
 │   ├── ruoyi-extend/   # 扩展
 │   └── script/         # 上游脚本
 ├── frontend/           # plus-ui 5.X 前端（Vue3 + TS + Element Plus）
-├── db/                 # MySQL 建表与初始化脚本（01~06，按序执行）
+├── db/                 # MySQL 脚本：00 底座表 + 01~06 业务表（按序执行）
 ├── docs/               # 需求、技术方案、数据库设计、M0 改造清单、接口、考勤引擎
 ├── .gitignore
 └── README.md
@@ -67,11 +72,21 @@ CREATE DATABASE `rt-hrms` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_
 
 ```bash
 cd db
+# 必须先跑底座表（sys_user / sys_role / sys_menu / sys_dict_* ...）
+mysql -h127.0.0.1 -P3306 -uroot -p --default-character-set=utf8mb4 rt-hrms < 00_ruoyi_base.sql
+
+# 再跑业务表
 for f in 01_schema_org.sql 02_schema_employee.sql 03_schema_attendance.sql \
          04_schema_pay_leave.sql 05_schema_system.sql 06_init_data.sql; do
-  mysql -h127.0.0.1 -P3306 -uroot -p rt-hrms < "$f"
+  mysql -h127.0.0.1 -P3306 -uroot -p --default-character-set=utf8mb4 rt-hrms < "$f"
 done
 ```
+
+> **必须带 `--default-character-set=utf8mb4`**，否则基础 SQL 里的中文会按 latin1 解析，报 `Data too long for column 'contact_user_name'`。
+>
+> **不要执行** `backend/script/sql/ry_job.sql` 和 `ry_workflow.sql`：本项目已决定不启用 SnailJob / Warm-Flow。
+>
+> 全量执行后应为 **84 张表**（底座 25 + 业务 59）、`sys_user` 3 条、`sys_menu` 120 条、法人 13、职级 12。
 
 ### 3. 改数据源
 

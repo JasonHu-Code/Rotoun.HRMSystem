@@ -49,6 +49,8 @@
         <anyline.version>8.7.3-20260319</anyline.version>
         <!-- 工作流配置 -->
         <warm-flow.version>1.8.9</warm-flow.version>
+        <!-- 分布式定时锁（替代 SnailJob） -->
+        <shedlock.version>7.10.1</shedlock.version>
 
         <!-- 插件版本 -->
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -355,6 +357,18 @@
                 <groupId>org.dromara</groupId>
                 <artifactId>ruoyi-workflow</artifactId>
                 <version>${revision}</version>
+            </dependency>
+
+            <!-- 分布式定时锁（替代 SnailJob） -->
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-redis-spring</artifactId>
+                <version>${shedlock.version}</version>
             </dependency>
 
         </dependencies>
