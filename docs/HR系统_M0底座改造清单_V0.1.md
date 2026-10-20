@@ -278,6 +278,30 @@ public class HrDataPermissionHandler implements MultiDataPermissionHandler {
 - 底座的 `sys_*` mapper 不标 `@HrDataScope`，因此不会被组织权限限制；
 - 底座的 `@DataPermission` 注解即使还挂在 mapper 上也不会生效，因为 Handler 已换。
 
+### 3.3.1 开工实测后对本节的修正（2026-10-20）
+
+**结论：底座不用动，两套并存。** 实测 `rotoun-common-mybatis` 源码：
+
+- `MybatisPlusConfig.dataPermissionInterceptor()` 直接 `new PlusDataPermissionInterceptor()`（**不是 `@Bean`**）；
+- `PlusDataPermissionInterceptor.beforeQuery()` 第一件事是 `dataPermissionHandler.invalid()`，
+  而 `PlusDataPermissionHandler.invalid()` 只在方法/类带底座 `@DataPermission` 时才为 `false`；
+- 全后端无 `params.dataScope` 老写法，无 `DataScopeAspect`。
+
+也就是说：**只要我们的业务 mapper 不标底座 `@DataPermission`，底座拦截器天然跳过，不会误伤。**
+因此不需要"注销底座 Handler"，改为**另挂一个只认 `@HrDataScope` 的拦截器**，两条链各管各的：
+
+| 拦截器 | 认的注解 | 数据来源 | 影响面 |
+|---|---|---|---|
+| 底座 `PlusDataPermissionInterceptor`（保留） | `@DataPermission` | `sys_role.data_scope` + `sys_dept` | 底座系统管理页面，照旧 |
+| 新增 `HrDataPermissionInterceptor` | `@HrDataScope` | `data_scope_rule` + `organization` | 仅 HR 业务 mapper |
+
+落地方式（已实现）：`HrDataPermissionRegistrar` 在 `afterPropertiesSet()` 里把新拦截器插进
+`MybatisPlusInterceptor.getInterceptors()`，位置在 **`PaginationInnerInterceptor` 之前**——
+否则分页插件已把 SQL 包成 `select count(*) from (原SQL) total`，别名在子查询里，别名校验必失败、
+count 也统计不到过滤后的结果。
+
+**与原文的偏差**：原文写"不注册底座 Handler"，实测没必要，改成分离共存（少改底座 = 少踩升级的坑）。
+
 ### 3.4 `DataScopeSqlBuilder`：规则 → SQL
 
 **输入**：`HrLoginContext.scopeRules` + 当前表 / 别名

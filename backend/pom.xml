@@ -346,6 +346,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- HR 业务模块 -->
+            <dependency>
+                <groupId>org.dromara</groupId>
+                <artifactId>rotoun-hr-biz</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.dromara</groupId>
                 <artifactId>rotoun-demo</artifactId>

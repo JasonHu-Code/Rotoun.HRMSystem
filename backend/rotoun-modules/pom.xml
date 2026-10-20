@@ -13,6 +13,7 @@
         <module>rotoun-demo</module>
         <module>rotoun-generator</module>
         <module>rotoun-system</module>
+        <module>rotoun-hr-biz</module>
     </modules>
 
     <artifactId>rotoun-modules</artifactId>

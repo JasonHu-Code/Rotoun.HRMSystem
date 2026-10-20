@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.dromara</groupId>
+        <artifactId>rotoun-modules</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rotoun-hr-biz</artifactId>
+
+    <description>
+        HR 业务模块（组织 / 员工 / 考勤 / 假期 / 薪酬 / 审批流）
+        按技术方案 2.2：业务不按域拆多个 Maven 模块，统一放在本模块内按包分层，
+        包之间只允许 org ← employee ← attendance ← pay 方向的依赖。
+    </description>
+
+    <properties>
+        <!-- 父 POM 默认 skipTests=true（打包跳过测试），本模块的数据权限是安全底线，必须跑 -->
+        <skipTests>false</skipTests>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- 父 POM 配了 <groups>${profiles.active}</groups>：只跑带对应 @Tag 的测试。
+                         本模块不按环境分组，清空该配置，否则测试类会被静默过滤掉（Tests run: 0）。 -->
+                    <groups combine.self="override" />
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- 通用工具：StringUtils、SpringUtils、统一返回体 -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>rotoun-common-core</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus 与 JSqlParser（数据权限拦截器要用） -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>rotoun-common-mybatis</artifactId>
+        </dependency>
+
+        <!-- Redis：登录上下文与数据权限规则缓存 -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>rotoun-common-redis</artifactId>
+        </dependency>
+
+        <!-- Sa-Token / LoginHelper：取当前登录用户 -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>rotoun-common-satoken</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -70,6 +70,12 @@
             <artifactId>rotoun-system</artifactId>
         </dependency>
 
+        <!-- HR 业务模块 -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>rotoun-hr-biz</artifactId>
+        </dependency>
+
         <!-- 代码生成-->
         <dependency>
             <groupId>org.dromara</groupId>
