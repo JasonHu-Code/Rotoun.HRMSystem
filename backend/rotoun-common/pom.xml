@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>rotoun-hrms</artifactId>
+        <groupId>org.dromara</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <modules>
+        <module>rotoun-common-bom</module>
+        <module>rotoun-common-social</module>
+        <module>rotoun-common-core</module>
+        <module>rotoun-common-doc</module>
+        <module>rotoun-common-excel</module>
+        <module>rotoun-common-idempotent</module>
+        <module>rotoun-common-log</module>
+        <module>rotoun-common-mail</module>
+        <module>rotoun-common-mybatis</module>
+        <module>rotoun-common-oss</module>
+        <module>rotoun-common-ratelimiter</module>
+        <module>rotoun-common-redis</module>
+        <module>rotoun-common-satoken</module>
+        <module>rotoun-common-security</module>
+        <module>rotoun-common-sms</module>
+        <module>rotoun-common-web</module>
+        <module>rotoun-common-translation</module>
+        <module>rotoun-common-sensitive</module>
+        <module>rotoun-common-json</module>
+        <module>rotoun-common-encrypt</module>
+        <module>rotoun-common-tenant</module>
+        <module>rotoun-common-websocket</module>
+        <module>rotoun-common-sse</module>
+    </modules>
+
+    <artifactId>rotoun-common</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        common 通用模块
+    </description>
+
+</project>

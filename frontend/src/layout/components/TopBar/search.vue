@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbSearch">
-import { getNormalPath } from '@/utils/ruoyi';
+import { getNormalPath } from '@/utils/rotoun';
 import { isHttp } from '@/utils/validate';
 import { usePermissionStore } from '@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';

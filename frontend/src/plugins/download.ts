@@ -1,7 +1,7 @@
 import axios from 'axios';
 import FileSaver from 'file-saver';
 import errorCode from '@/utils/errorCode';
-import { blobValidate } from '@/utils/ruoyi';
+import { blobValidate } from '@/utils/rotoun';
 import { LoadingInstance } from 'element-plus/es/components/loading/src/loading';
 import { globalHeaders } from '@/utils/request';
 

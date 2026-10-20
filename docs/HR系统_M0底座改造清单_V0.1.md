@@ -127,7 +127,7 @@ LEFT JOIN organization o ON o.id = em.organization_id AND o.is_deleted = 0;
 
 ### 2.5 登录上下文 `HrLoginContext`
 
-不改底座 `LoginUser` 类（避免动 `ruoyi-common`），新增独立上下文对象，登录成功后装配一次：
+不改底座 `LoginUser` 类（避免动 `rotoun-common`），新增独立上下文对象，登录成功后装配一次：
 
 ```java
 public class HrLoginContext {
@@ -219,7 +219,7 @@ grep -rn "params.dataScope" --include=*.xml .  # 应无命中
 
 **做法：停用底座切面 + 不给自己标 `@DataScope` + 改用 MyBatis-Plus 拦截器。**
 
-1. 在 `hr-framework` 里删除/注释 `DataScopeAspect` 类（或加 `@ConditionalOnProperty` 关掉）；确认 `ruoyi-system` 的 mapper XML 里 `params.dataScope` 一并清掉。
+1. 在 `hr-framework` 里删除/注释 `DataScopeAspect` 类（或加 `@ConditionalOnProperty` 关掉）；确认 `rotoun-system` 的 mapper XML 里 `params.dataScope` 一并清掉。
 2. 底座 `sys_user` / `sys_role` 查询不再注入任何数据权限（管理员配置页本就该全量，用菜单权限控制谁能进）。
 3. 业务侧统一用**自己的注解 `@HrDataScope`**（不叫 `@DataScope`，彻底避开重名），由 MyBatis-Plus 的 `DataPermissionInterceptor` 处理，见 3.4。
 
@@ -556,8 +556,8 @@ SELECT COUNT(*) AS no_user_emp FROM employee WHERE sys_user_id IS NULL AND is_de
 
 | 配置 | 位置 | 实际值 |
 |---|---|---|
-| token 名 | `ruoyi-admin/src/main/resources/application.yml` | `Authorization` |
-| token 前缀 | `ruoyi-common/ruoyi-common-satoken/src/main/resources/common-satoken.yml` | `"Bearer"` |
+| token 名 | `rotoun-admin/src/main/resources/application.yml` | `Authorization` |
+| token 前缀 | `rotoun-common/rotoun-common-satoken/src/main/resources/common-satoken.yml` | `"Bearer"` |
 | 认证实现 | `SaTokenConfig.java` | `StpLogicJwtForSimple`（JWT 简单模式）+ `PlusSaTokenDao`（Redis 存储） |
 | 读 cookie | `common-satoken.yml` | `false`（已关，符合安全要求） |
 | 读 body | `common-satoken.yml` | `true`（**需改 false**，禁止 URL 传参） |
@@ -629,20 +629,20 @@ service.interceptors.request.use(config => {
 })
 ```
 
-### 9.5 `loginId` 必须用 `sys_user.user_id`
+### 9.5 `loginId` 的实际格式（运行时核对）
 
-这条最容易被忽略，但错了会同时影响登录和踢下线：
+**实测脚手架 JWT 的 `loginId` 是 `sys_user:1`，不是纯 `userId`。** 这是底座 `LoginHelper` 的前缀约定，用于区分用户类型（`sys_user:` / `app_user:`）。
 
-- **纯管理员没有 `employee` 记录**，用 `employeeId` 作 loginId 会导致管理员登录不了；
-- 离职踢下线是 `StpUtil.kickout(userId)`，用 `employeeId` 找不到会话；
-- `HrLoginContext` 是按 `userId` 反查 `employee`，方向要一致。
+取当前用户 ID 必须用：
 
 ```java
-StpUtil.login(userId);                      // 不是 employeeId
-Long userId = StpUtil.getLoginIdAsLong();
+Long userId = LoginHelper.getUserId();   // 底座封装，自动剥前缀
+// 不要用 StpUtil.getLoginIdAsLong()：它会把 "sys_user:1" 当 long 解析而失败
 ```
 
-> 若底座默认把 `username` 当 loginId，要在登录处显式改成 `userId`，并确认 `StpUtil.getLoginIdAsLong()` 返回的是 `sys_user.user_id`。
+- 踢下线用 `StpUtil.kickout(LoginHelper.getUserId())`，与登录时的规则保持一致；
+- `HrLoginContext` 按 `LoginHelper.getUserId()` 反查 `employee`；
+- 自研登录逻辑若调用 `StpUtil.login(...)`，保持底座的 `loginId` 格式（`sys_user:{userId}`），不要混用纯 userId 和带前缀两种格式。
 
 ### 9.6 "8 小时滑动续期"的真相
 

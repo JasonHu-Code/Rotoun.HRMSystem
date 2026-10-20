@@ -23,14 +23,14 @@
 
 | # | 改动 | 文件 |
 |---|---|---|
-| 1 | 数据源 `ry-vue` → `rt-hrms` | `backend/ruoyi-admin/src/main/resources/application-dev.yml` |
+| 1 | 数据源 `ry-vue` → `rt-hrms` | `backend/rotoun-admin/src/main/resources/application-dev.yml` |
 | 2 | Sa-Token 补 `timeout: 28800`、`active-timeout: 1800`、`is-read-body: false` | 同目录 `application.yml` |
 | 3 | 前端标题/Logo 改为「瑞堂人事管理系统 / Rotoun HRMS」 | `frontend/.env.development` / `.env.production` |
 | 4 | 前端包名改为 `rotoun-hrms-ui` | `frontend/package.json` |
 | 5 | 移除布局页的 WebSocket/SSE 初始化（token 曾拼在 URL 上，违反规范 7.4） | `frontend/src/layout/index.vue` |
-| 6 | 移除 `ruoyi-job` / `ruoyi-workflow` 模块与 admin 依赖（不启用 SnailJob / Warm-Flow） | `backend/pom.xml`、`ruoyi-admin/pom.xml`、`ruoyi-modules/pom.xml` |
-| 7 | 移除 `ruoyi-snailjob-server`；新增 ShedLock 7.10.1 + `ShedLockConfig` | `ruoyi-extend/pom.xml`、`web/config/ShedLockConfig.java` |
-| 8 | 补 `db/00_ruoyi_base.sql`（底座 25 张表，已移除 SnailJob 菜单） | `db/00_ruoyi_base.sql` |
+| 6 | 移除 `rotoun-job` / `rotoun-workflow` 模块与 admin 依赖（不启用 SnailJob / Warm-Flow） | `backend/pom.xml`、`rotoun-admin/pom.xml`、`rotoun-modules/pom.xml` |
+| 7 | 移除 `rotoun-snailjob-server`；新增 ShedLock 7.10.1 + `ShedLockConfig` | `rotoun-extend/pom.xml`、`web/config/ShedLockConfig.java` |
+| 8 | 补 `db/00_rotoun_base.sql`（底座 25 张表，已移除 SnailJob 菜单） | `db/00_rotoun_base.sql` |
 | 9 | 关闭底座多租户（HR 单租户，多组织靠 `organization` + 数据权限） | `application.yml` 的 `tenant.enable: false` |
 
 ## 已确认的技术取舍（2026-10-20）
@@ -40,17 +40,17 @@
 | 1 | 审批流 | **自研 `approval_flow` + `approval_flow_node` + `approval_instance` 三张表**，不启用 Warm-Flow 1.8.9 |
 | 2 | 定时任务 | **Spring Task + ShedLock 7.10.1**（Redis provider），不启用 SnailJob 1.10 |
 
-落地情况：`ruoyi-job` / `ruoyi-workflow` / `ruoyi-snailjob-server` 已从 Maven reactor 与 `ruoyi-admin` 依赖移除；`warm-flow` 配置与 SpringDoc 工作流分组已清理；新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`）。
+落地情况：`rotoun-job` / `rotoun-workflow` / `rotoun-snailjob-server` 已从 Maven reactor 与 `rotoun-admin` 依赖移除；`warm-flow` 配置与 SpringDoc 工作流分组已清理；新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`）。
 
 ## 目录结构
 
 ```
 Rotoun.HRMSystem/
 ├── backend/            # RuoYi-Vue-Plus 5.6.2 后端（Maven 多模块）
-│   ├── ruoyi-admin/    # 启动模块
-│   ├── ruoyi-common/   # 公共组件（含 common-satoken）
-│   ├── ruoyi-modules/  # 业务模块
-│   ├── ruoyi-extend/   # 扩展
+│   ├── rotoun-admin/    # 启动模块
+│   ├── rotoun-common/   # 公共组件（含 common-satoken）
+│   ├── rotoun-modules/  # 业务模块
+│   ├── rotoun-extend/   # 扩展
 │   └── script/         # 上游脚本
 ├── frontend/           # plus-ui 5.X 前端（Vue3 + TS + Element Plus）
 ├── db/                 # MySQL 脚本：00 底座表 + 01~06 业务表（按序执行）
@@ -74,7 +74,7 @@ CREATE DATABASE `rt-hrms` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_
 ```bash
 cd db
 # 必须先跑底座表（sys_user / sys_role / sys_menu / sys_dict_* ...）
-mysql -h127.0.0.1 -P3306 -uroot -p --default-character-set=utf8mb4 rt-hrms < 00_ruoyi_base.sql
+mysql -h127.0.0.1 -P3306 -uroot -p --default-character-set=utf8mb4 rt-hrms < 00_rotoun_base.sql
 
 # 再跑业务表
 for f in 01_schema_org.sql 02_schema_employee.sql 03_schema_attendance.sql \
@@ -91,7 +91,7 @@ done
 
 ### 3. 改数据源
 
-`backend/ruoyi-admin/src/main/resources/application-dev.yml`：
+`backend/rotoun-admin/src/main/resources/application-dev.yml`：
 
 ```yaml
 url: jdbc:mysql://localhost:3306/rt-hrms?...
@@ -105,7 +105,7 @@ password: root   # 按本机实际密码改
 cd backend
 mvn clean package -DskipTests
 # 运行 org.dromara.DromaraApplication
-# 或 java -jar ruoyi-admin/target/ruoyi-admin.jar
+# 或 java -jar rotoun-admin/target/rotoun-admin.jar
 ```
 
 默认端口 `8080`。
@@ -120,12 +120,32 @@ pnpm dev
 
 默认端口 `80`（见 `.env.development` 的 `VITE_APP_PORT`；Windows 下 80 可能需管理员权限，可改为 8081）。
 
+> 本机实测 `pnpm install` 会卡在 store 写入；可改用 `npm install --legacy-peer-deps`，构建产物一致。
+
+## 运行验证（2026-10-20）
+
+| 项 | 结果 |
+|---|---|
+| 后端编译 | `mvn clean package -DskipTests` 成功，33 个模块，产出 `rotoun-admin.jar` |
+| 后端启动 | `java -jar rotoun-admin.jar --spring.profiles.active=dev`，8080 监听，`Started DromaraApplication` |
+| 数据库 | `rt-hrms` 84 表（底座 25 + 业务 59） |
+| Redis | `127.0.0.1:6379`（本机未设密码） |
+| 登录 | 加密请求 `POST /auth/login` 返回 `code:200`，拿到 JWT |
+| 前端构建 | `npm install` + `npm run build:prod` 成功，`dist` 已生成 |
+
+**运行时发现（M0 处理）**：
+
+1. JWT 的 `loginId` 是 **`sys_user:1`**，不是纯 `userId`。取当前用户请用 `LoginHelper.getUserId()`，不要直接 `StpUtil.getLoginIdAsLong()`。
+2. 登录响应 `expire_in=604800`（7 天），由 `sys_client.access_token_timeout` / `refresh_token_timeout` 控制。要 8 小时，需改 `sys_client` 配置（不能只改 `sa-token.timeout`）。
+3. 本地 dev 已关闭验证码（`application-dev.yml` 的 `captcha.enable: false`），**生产必须打开**。
+4. 前端用 npm 构建（本机 pnpm store 卡住）；未保留 `package-lock.json`。
+
 ## 认证配置（已对齐）
 
 | 配置 | 位置 | 值 |
 |---|---|---|
 | token 名 | `application.yml` | `token-name: Authorization` |
-| token 前缀 | `ruoyi-common-satoken/src/main/resources/common-satoken.yml` | `token-prefix: "Bearer"` |
+| token 前缀 | `rotoun-common-satoken/src/main/resources/common-satoken.yml` | `token-prefix: "Bearer"` |
 | 有效期 | `application.yml` | `timeout: 28800`（8 小时） |
 | 无操作冻结 | `application.yml` | `active-timeout: 1800`（30 分钟） |
 | 禁止 URL 传参 | `application.yml` | `is-read-body: false` |

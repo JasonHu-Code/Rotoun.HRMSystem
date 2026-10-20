@@ -38,8 +38,8 @@ CREATE TABLE `sj_group_config`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8mb4 COMMENT ='组配置';
 
-INSERT INTO `sj_group_config` VALUES (1, 'dev', 'ruoyi_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
-INSERT INTO `sj_group_config` VALUES (2, 'prod', 'ruoyi_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
+INSERT INTO `sj_group_config` VALUES (1, 'dev', 'rotoun_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
+INSERT INTO `sj_group_config` VALUES (2, 'prod', 'rotoun_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
 
 CREATE TABLE `sj_notify_config`
 (
@@ -317,7 +317,7 @@ CREATE TABLE `sj_job`
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8mb4 COMMENT ='任务信息';
 
-INSERT INTO `sj_job` VALUES (1, 'dev', 'demo-job', 'ruoyi_group', 'demo-job', null, 1, 1710344035622, 1, 1, 4, 1, 'testJobExecutor', 2, '60', 1, 60, 3, 1, 1, 116, 0, '', 1, '','', '', 0 , now(), now());
+INSERT INTO `sj_job` VALUES (1, 'dev', 'demo-job', 'rotoun_group', 'demo-job', null, 1, 1710344035622, 1, 1, 4, 1, 'testJobExecutor', 2, '60', 1, 60, 3, 1, 1, 116, 0, '', 1, '','', '', 0 , now(), now());
 
 CREATE TABLE `sj_job_log_message`
 (

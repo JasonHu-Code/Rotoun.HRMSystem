@@ -54,7 +54,7 @@ const onNewsClick = (item: any) => {
 
 // 前往通知中心点击
 const onGoToGiteeClick = () => {
-  window.open('https://gitee.com/dromara/RuoYi-Vue-Plus/tree/5.X/');
+  window.open('https://github.com/JasonHu-Code/Rotoun.HRMSystem');
 };
 
 onMounted(() => {

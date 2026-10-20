@@ -9,7 +9,7 @@ import animate from '@/animate';
 import { download as dl } from '@/utils/request';
 import { useDict } from '@/utils/dict';
 import { getConfigKey, updateConfigByKey } from '@/api/system/config';
-import { parseTime, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/ruoyi';
+import { parseTime, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/rotoun';
 
 import { App } from 'vue';
 

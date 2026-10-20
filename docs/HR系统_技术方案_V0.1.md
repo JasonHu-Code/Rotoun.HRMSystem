@@ -58,7 +58,7 @@
 
 **（2026-10-20 脚手架核对修正：底座自带的是 Warm-Flow 1.8.9，不是 Flowable。）**
 
-RuoYi-Vue-Plus 5.6.2 自带 `ruoyi-workflow` 模块（Warm-Flow 1.8.9），提供流程定义、实例、任务、表单、流程图设计器。
+RuoYi-Vue-Plus 5.6.2 自带 `rotoun-workflow` 模块（Warm-Flow 1.8.9），提供流程定义、实例、任务、表单、流程图设计器。
 
 但：
 
@@ -66,17 +66,17 @@ RuoYi-Vue-Plus 5.6.2 自带 `ruoyi-workflow` 模块（Warm-Flow 1.8.9），提�
 - 没有会签、没有并行网关、没有子流程、没有动态加签
 - Warm-Flow 虽比 Flowable 轻，但仍会引入一套流程表、设计器 UI 与学习成本，且审批人规则（直属上级、组织负责人）还要二次开发
 
-**结论：v1.0 不启用 `ruoyi-workflow`**，用自研的 `approval_flow` + `approval_flow_node` + `approval_instance` 三张表足够（已在数据库设计中）。理由：审批链简单、审批人规则与 `organization` / `position` 强耦合，自研更直接。
+**结论：v1.0 不启用 `rotoun-workflow`**，用自研的 `approval_flow` + `approval_flow_node` + `approval_instance` 三张表足够（已在数据库设计中）。理由：审批链简单、审批人规则与 `organization` / `position` 强耦合，自研更直接。
 
 何时该换成 Warm-Flow：出现"同一单据多人会签""按金额走不同分支且分支超过 3 层""需要业务人员图形化建模"。现在都不满足。
 
-> **已确认（2026-10-20）：采用自研三张表，不启用 Warm-Flow。** 落地：`ruoyi-workflow` 已从 Maven reactor 与 `ruoyi-admin` 依赖移除，`warm-flow` 配置与 SpringDoc 工作流分组已清理。
+> **已确认（2026-10-20）：采用自研三张表，不启用 Warm-Flow。** 落地：`rotoun-workflow` 已从 Maven reactor 与 `rotoun-admin` 依赖移除，`warm-flow` 配置与 SpringDoc 工作流分组已清理。
 
 #### 偏离三：定时任务用 Spring Task + ShedLock，不启用 SnailJob
 
 **（2026-10-20 脚手架核对修正：底座自带的是 SnailJob 1.10，不是 XXL-Job。）**
 
-RuoYi-Vue-Plus 5.6.2 自带 `ruoyi-job`（SnailJob 客户端）+ `ruoyi-extend/ruoyi-snailjob-server`（独立调度中心）。
+RuoYi-Vue-Plus 5.6.2 自带 `rotoun-job`（SnailJob 客户端）+ `rotoun-extend/rotoun-snailjob-server`（独立调度中心）。
 
 SnailJob 同样需要一个独立 Java 服务 + 一套表 + 管理界面，部署成本与 XXL-Job 同级。
 
@@ -91,7 +91,7 @@ SnailJob 同样需要一个独立 Java 服务 + 一套表 + 管理界面，部�
 
 **结论：v1.0 不启用 SnailJob**，用 `@Scheduled` + ShedLock（Redis 实现分布式锁）即可，防止多实例重复执行。上独立调度中心是给不需要集群调度的系统上集群调度。
 
-> **已确认（2026-10-20）：不启用 SnailJob，改用 Spring Task + ShedLock 7.10.1。** 落地：`ruoyi-job` / `ruoyi-snailjob-server` 已从 reactor 移除，新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`，Redis provider）。
+> **已确认（2026-10-20）：不启用 SnailJob，改用 Spring Task + ShedLock 7.10.1。** 落地：`rotoun-job` / `rotoun-snailjob-server` 已从 reactor 移除，新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`，Redis provider）。
 
 ---
 
@@ -209,7 +209,7 @@ repository  复杂查询（多表 join、统计），用 XML
 | fastexcel | 1.3.0 | Excel 导入导出（底座已带，替代 EasyExcel） |
 | springdoc-openapi + therapi-javadoc | 2.8.17 / 0.15.0 | 接口文档（底座已带，替代 knife4j） |
 
-**不启用**：Warm-Flow（`ruoyi-workflow`）、SnailJob（`ruoyi-job` + `ruoyi-snailjob-server`）、RocketMQ、ShardingSphere、Elasticsearch。
+**不启用**：Warm-Flow（`rotoun-workflow`）、SnailJob（`rotoun-job` + `rotoun-snailjob-server`）、RocketMQ、ShardingSphere、Elasticsearch。
 
 ### 3.2 前端关键依赖
 
@@ -280,8 +280,8 @@ public interface FileStorage {
 约束：
 - 除 `/api/auth/login`、`/api/auth/captcha` 外全部鉴权
 - Token 走 Header `Authorization: Bearer <token>`（Sa-Token 配 `token-name: Authorization` + `token-prefix: Bearer`），**禁止 URL 传参**
-- **`loginId` 用 `sys_user.user_id`**（不是 `employeeId`）：纯管理员无员工档案，且离职踢下线按 `userId` 定位会话
-- 有效期 8 小时（Sa-Token `timeout=28800`，`active-timeout=1800`）。**默认不是滑动续期**；若要滑动，拦截器按需 `StpUtil.renewTimeout(28800)`（每 5 分钟最多一次）
+- **`loginId` 实际是 `sys_user:{userId}`**（底座 `LoginHelper` 前缀约定，运行时核对）：取当前用户用 `LoginHelper.getUserId()`，不要直接 `StpUtil.getLoginIdAsLong()`；离职踢下线用同一个 `userId`
+- 有效期：`sa-token.timeout=28800`（8 小时）只是兜底；**实际 `expire_in` 由 `sys_client.access_token_timeout` 控制**（运行时返回 604800 = 7 天）。要真正 8 小时，必须同时调整 `sys_client` 配置
 - 离职自动踢下线：`StpUtil.kickout(userId)` + 清 `hr:login:{userId}` / `hr:datascope:{userId}`
 - 只读 Header（`is-read-cookie: false` / `is-read-body: false`），避免 cookie 形成第二入口
 

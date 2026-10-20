@@ -77,9 +77,9 @@ services:
       # 时区上海
       TZ: Asia/Shanghai
       # 管理后台用户名
-      MINIO_ROOT_USER: ruoyi
+      MINIO_ROOT_USER: rotoun
       # 管理后台密码，最小8个字符
-      MINIO_ROOT_PASSWORD: ruoyi123
+      MINIO_ROOT_PASSWORD: rotoun123
       # https需要指定域名
       #MINIO_SERVER_URL: "https://xxx.com:9000"
       #MINIO_BROWSER_REDIRECT_URL: "https://xxx.com:9001"
@@ -98,9 +98,9 @@ services:
     privileged: true
     network_mode: "host"
 
-  ruoyi-server1:
-    image: ruoyi/ruoyi-server:5.6.2
-    container_name: ruoyi-server1
+  rotoun-server1:
+    image: rotoun/rotoun-server:5.6.2
+    container_name: rotoun-server1
     environment:
       # 时区上海
       TZ: Asia/Shanghai
@@ -108,15 +108,15 @@ services:
       SNAIL_PORT: 28080
     volumes:
       # 配置文件
-      - /docker/server1/logs/:/ruoyi/server/logs/
+      - /docker/server1/logs/:/rotoun/server/logs/
       # skywalking 探针
-#      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
+#      - /docker/skywalking/agent/:/rotoun/skywalking/agent
     privileged: true
     network_mode: "host"
 
-  ruoyi-server2:
-    image: ruoyi/ruoyi-server:5.6.2
-    container_name: ruoyi-server2
+  rotoun-server2:
+    image: rotoun/rotoun-server:5.6.2
+    container_name: rotoun-server2
     environment:
       # 时区上海
       TZ: Asia/Shanghai
@@ -124,27 +124,27 @@ services:
       SNAIL_PORT: 28081
     volumes:
       # 配置文件
-      - /docker/server2/logs/:/ruoyi/server/logs/
+      - /docker/server2/logs/:/rotoun/server/logs/
       # skywalking 探针
-#      - /docker/skywalking/agent/:/ruoyi/skywalking/agent
+#      - /docker/skywalking/agent/:/rotoun/skywalking/agent
     privileged: true
     network_mode: "host"
 
-  ruoyi-monitor-admin:
-    image: ruoyi/ruoyi-monitor-admin:5.6.2
-    container_name: ruoyi-monitor-admin
+  rotoun-monitor-admin:
+    image: rotoun/rotoun-monitor-admin:5.6.2
+    container_name: rotoun-monitor-admin
     environment:
       # 时区上海
       TZ: Asia/Shanghai
     volumes:
       # 配置文件
-      - /docker/monitor/logs/:/ruoyi/monitor/logs
+      - /docker/monitor/logs/:/rotoun/monitor/logs
     privileged: true
     network_mode: "host"
 
-  ruoyi-snailjob-server:
-    image: ruoyi/ruoyi-snailjob-server:5.6.2
-    container_name: ruoyi-snailjob-server
+  rotoun-snailjob-server:
+    image: rotoun/rotoun-snailjob-server:5.6.2
+    container_name: rotoun-snailjob-server
     environment:
       # 时区上海
       TZ: Asia/Shanghai
@@ -152,6 +152,6 @@ services:
       - "8800:8800"
       - "17888:17888"
     volumes:
-      - /docker/snailjob/logs/:/ruoyi/snailjob/logs
+      - /docker/snailjob/logs/:/rotoun/snailjob/logs
     privileged: true
     network_mode: "host"

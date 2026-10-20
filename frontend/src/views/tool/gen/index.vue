@@ -181,7 +181,7 @@ const handleGenTable = async (row?: TableVO) => {
     proxy?.$modal.msgError('请选择要生成的数据');
     return;
   }
-  proxy?.$download.zip('/tool/gen/batchGenCode?tableIdStr=' + tbIds, 'ruoyi.zip');
+  proxy?.$download.zip('/tool/gen/batchGenCode?tableIdStr=' + tbIds, 'rotoun.zip');
 };
 /** 同步数据库操作 */
 const handleSynchDb = async (row: TableVO) => {

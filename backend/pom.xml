@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.dromara</groupId>
-    <artifactId>ruoyi-vue-plus</artifactId>
+    <artifactId>rotoun-hrms</artifactId>
     <version>${revision}</version>
 
-    <name>RuoYi-Vue-Plus</name>
-    <url>https://gitee.com/dromara/RuoYi-Vue-Plus</url>
-    <description>Dromara RuoYi-Vue-Plus多租户管理系统</description>
+    <name>Rotoun HRMS</name>
+    <url>https://github.com/JasonHu-Code/Rotoun.HRMSystem</url>
+    <description>瑞堂人事管理系统（基于 RuoYi-Vue-Plus 5.6.2）</description>
 
     <properties>
         <revision>5.6.2</revision>
@@ -69,7 +69,7 @@
                 <!-- 环境标识，需要与配置文件的名称相对应 -->
                 <profiles.active>local</profiles.active>
                 <logging.level>info</logging.level>
-                <monitor.username>ruoyi</monitor.username>
+                <monitor.username>rotoun</monitor.username>
                 <monitor.password>123456</monitor.password>
             </properties>
         </profile>
@@ -79,7 +79,7 @@
                 <!-- 环境标识，需要与配置文件的名称相对应 -->
                 <profiles.active>dev</profiles.active>
                 <logging.level>info</logging.level>
-                <monitor.username>ruoyi</monitor.username>
+                <monitor.username>rotoun</monitor.username>
                 <monitor.password>123456</monitor.password>
             </properties>
             <activation>
@@ -92,7 +92,7 @@
             <properties>
                 <profiles.active>prod</profiles.active>
                 <logging.level>warn</logging.level>
-                <monitor.username>ruoyi</monitor.username>
+                <monitor.username>rotoun</monitor.username>
                 <monitor.password>123456</monitor.password>
             </properties>
         </profile>
@@ -123,7 +123,7 @@
             <!-- common 的依赖配置-->
             <dependency>
                 <groupId>org.dromara</groupId>
-                <artifactId>ruoyi-common-bom</artifactId>
+                <artifactId>rotoun-common-bom</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -330,32 +330,32 @@
 
             <dependency>
                 <groupId>org.dromara</groupId>
-                <artifactId>ruoyi-system</artifactId>
+                <artifactId>rotoun-system</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dromara</groupId>
-                <artifactId>ruoyi-job</artifactId>
+                <artifactId>rotoun-job</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dromara</groupId>
-                <artifactId>ruoyi-generator</artifactId>
+                <artifactId>rotoun-generator</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dromara</groupId>
-                <artifactId>ruoyi-demo</artifactId>
+                <artifactId>rotoun-demo</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!--  工作流模块  -->
             <dependency>
                 <groupId>org.dromara</groupId>
-                <artifactId>ruoyi-workflow</artifactId>
+                <artifactId>rotoun-workflow</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -375,10 +375,10 @@
     </dependencyManagement>
 
     <modules>
-        <module>ruoyi-admin</module>
-        <module>ruoyi-common</module>
-        <module>ruoyi-extend</module>
-        <module>ruoyi-modules</module>
+        <module>rotoun-admin</module>
+        <module>rotoun-common</module>
+        <module>rotoun-extend</module>
+        <module>rotoun-modules</module>
     </modules>
     <packaging>pom</packaging>
 

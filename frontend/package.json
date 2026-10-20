@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/package",
   "name": "rotoun-hrms-ui",
   "version": "5.6.2-2.6.2",
-  "description": "RuoYi-Vue-Plus多租户管理系统",
+  "description": "瑞堂人事管理系统前端",
   "author": "LionLi",
   "license": "MIT",
   "type": "module",

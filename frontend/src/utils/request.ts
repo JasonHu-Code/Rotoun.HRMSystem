@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
-import { tansParams, blobValidate } from '@/utils/ruoyi';
+import { tansParams, blobValidate } from '@/utils/rotoun';
 import cache from '@/plugins/cache';
 import { HttpStatus } from '@/enums/RespEnum';
 import { errorCode } from '@/utils/errorCode';

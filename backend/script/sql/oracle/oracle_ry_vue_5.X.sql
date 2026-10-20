@@ -1249,11 +1249,11 @@ comment on column sys_oss_config.create_time    is '创建时间';
 comment on column sys_oss_config.update_by      is '更新者';
 comment on column sys_oss_config.update_time    is '更新时间';
 
-insert into sys_oss_config values (1, '000000', 'minio',  'ruoyi',            'ruoyi123',        'ruoyi',             '', '127.0.0.1:9000',                '','N', '',            '1', '0', '', NULL, 103, 1, sysdate, 1, sysdate);
-insert into sys_oss_config values (2, '000000', 'qiniu',  'XXXXXXXXXXXXXXX',  'XXXXXXXXXXXXXXX', 'ruoyi',             '', 's3-cn-north-1.qiniucs.com',     '','N', '',            '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
-insert into sys_oss_config values (3, '000000', 'aliyun', 'XXXXXXXXXXXXXXX',  'XXXXXXXXXXXXXXX', 'ruoyi',             '', 'oss-cn-beijing.aliyuncs.com',   '','N', '',            '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
-insert into sys_oss_config values (4, '000000', 'qcloud', 'XXXXXXXXXXXXXXX',  'XXXXXXXXXXXXXXX', 'ruoyi-1250000000',  '', 'cos.ap-beijing.myqcloud.com',   '','N', 'ap-beijing',  '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
-insert into sys_oss_config values (5, '000000', 'image',  'ruoyi',            'ruoyi123',        'ruoyi',             'image', '127.0.0.1:9000',           '','N', '',            '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
+insert into sys_oss_config values (1, '000000', 'minio',  'rotoun',            'rotoun123',        'rotoun',             '', '127.0.0.1:9000',                '','N', '',            '1', '0', '', NULL, 103, 1, sysdate, 1, sysdate);
+insert into sys_oss_config values (2, '000000', 'qiniu',  'XXXXXXXXXXXXXXX',  'XXXXXXXXXXXXXXX', 'rotoun',             '', 's3-cn-north-1.qiniucs.com',     '','N', '',            '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
+insert into sys_oss_config values (3, '000000', 'aliyun', 'XXXXXXXXXXXXXXX',  'XXXXXXXXXXXXXXX', 'rotoun',             '', 'oss-cn-beijing.aliyuncs.com',   '','N', '',            '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
+insert into sys_oss_config values (4, '000000', 'qcloud', 'XXXXXXXXXXXXXXX',  'XXXXXXXXXXXXXXX', 'rotoun-1250000000',  '', 'cos.ap-beijing.myqcloud.com',   '','N', 'ap-beijing',  '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
+insert into sys_oss_config values (5, '000000', 'image',  'rotoun',            'rotoun123',        'rotoun',             'image', '127.0.0.1:9000',           '','N', '',            '1', '1', '', NULL, 103, 1, sysdate, 1, sysdate);
 
 -- ----------------------------
 -- 系统授权表

@@ -65,8 +65,8 @@ COMMENT ON COLUMN sj_group_config.create_dt IS '创建时间';
 COMMENT ON COLUMN sj_group_config.update_dt IS '修改时间';
 COMMENT ON TABLE sj_group_config IS '组配置';
 
-INSERT INTO sj_group_config VALUES (1, 'dev', 'ruoyi_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
-INSERT INTO sj_group_config VALUES (2, 'prod', 'ruoyi_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
+INSERT INTO sj_group_config VALUES (1, 'dev', 'rotoun_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
+INSERT INTO sj_group_config VALUES (2, 'prod', 'rotoun_group', '', 'SJ_cKqBTPzCsWA3VyuCfFoccmuIEGXjr5KT', 1, 1, 0, 1, 1,  now(), now());
 
 -- sj_notify_config
 CREATE TABLE sj_notify_config
@@ -512,7 +512,7 @@ COMMENT ON COLUMN sj_job.create_dt IS '创建时间';
 COMMENT ON COLUMN sj_job.update_dt IS '修改时间';
 COMMENT ON TABLE sj_job IS '任务信息';
 
-INSERT INTO sj_job VALUES (1, 'dev', 'demo-job', 'ruoyi_group', 'demo-job', null, 1, 1710344035622, 1, 1, 4, 1, 'testJobExecutor', 2, '60', 1, 60, 3, 1, 1, 116, 0, '', 1, '', '', '', 0, now(), now());
+INSERT INTO sj_job VALUES (1, 'dev', 'demo-job', 'rotoun_group', 'demo-job', null, 1, 1710344035622, 1, 1, 4, 1, 'testJobExecutor', 2, '60', 1, 60, 3, 1, 1, 116, 0, '', 1, '', '', '', 0, now(), now());
 
 -- sj_job_log_message
 CREATE TABLE sj_job_log_message
