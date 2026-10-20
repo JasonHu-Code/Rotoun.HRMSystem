@@ -2,7 +2,10 @@
   <div class="login">
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <div class="title-box">
-        <h3 class="title">{{ title }}</h3>
+        <div class="title-brand">
+          <img src="@/assets/logo/logo.png" class="login-logo" alt="logo" />
+          <h3 class="title">{{ title }}</h3>
+        </div>
         <lang-select />
       </div>
       <el-form-item v-if="tenantEnabled" prop="tenantId">
@@ -248,8 +251,22 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
 
+  // 品牌区：logo + 系统名整体居中，语言切换靠右
+  .title-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto 26px auto;
+  }
+
+  .login-logo {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+  }
+
   .title {
-    margin: 0px auto 26px auto;
+    margin: 0;
     text-align: center;
     color: var(--el-text-color-primary);
     font-weight: 600;
