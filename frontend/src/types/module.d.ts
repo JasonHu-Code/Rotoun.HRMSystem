@@ -27,6 +27,11 @@ declare module 'vue' {
      */
     $t(key: ObjKeysToUnion<LanguageType>): string;
 
+    /**
+     * 扁平文案翻译（key 为中文原文），见 utils/i18n.ts
+     */
+    $tt(zh: string): string;
+
     useDict: typeof useDict;
     addDateRange: typeof addDateRange;
     download: typeof rd;

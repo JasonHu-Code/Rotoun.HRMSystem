@@ -1,4 +1,19 @@
+import ui1 from './ui/zh_to_en_1';
+import ui2 from './ui/zh_to_en_2';
+import ui3 from './ui/zh_to_en_3';
+import ui4 from './ui/zh_to_en_4';
+
 export default {
+  /**
+   * 扁平文案词典：key 是中文原文，见 utils/i18n.ts 的 tt()。
+   * 与 t() 的区别是不做 "a.b.c" 路径解析，因此可以容纳带标点的整句。
+   */
+  ui: {
+    ...ui1,
+    ...ui2,
+    ...ui3,
+    ...ui4
+  },
   // 路由国际化
   route: {
     dashboard: 'Dashboard',

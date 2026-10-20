@@ -1,8 +1,8 @@
 <template>
   <el-drawer v-model="showSettings" :with-header="false" direction="rtl" size="300px" close-on-click-modal>
-    <h3 class="drawer-title">菜单导航设置</h3>
+    <h3 class="drawer-title">{{ $tt('菜单导航设置') }}</h3>
     <div class="nav-wrap">
-      <el-tooltip content="左侧菜单" placement="bottom">
+      <el-tooltip :content="$tt('左侧菜单')" placement="bottom">
         <div
           class="item left"
           @click="handleNavType(NavTypeEnum.LEFT)"
@@ -13,7 +13,7 @@
         </div>
       </el-tooltip>
 
-      <el-tooltip content="混合菜单" placement="bottom">
+      <el-tooltip :content="$tt('混合菜单')" placement="bottom">
         <div
           class="item mix"
           @click="handleNavType(NavTypeEnum.MIX)"
@@ -23,7 +23,7 @@
           <b></b><b></b>
         </div>
       </el-tooltip>
-      <el-tooltip content="顶部菜单" placement="bottom">
+      <el-tooltip :content="$tt('顶部菜单')" placement="bottom">
         <div
           class="item top"
           @click="handleNavType(NavTypeEnum.TOP)"
@@ -35,7 +35,7 @@
       </el-tooltip>
     </div>
 
-    <h3 class="drawer-title">主题风格设置</h3>
+    <h3 class="drawer-title">{{ $tt('主题风格设置') }}</h3>
 
     <div class="setting-drawer-block-checbox">
       <div class="setting-drawer-block-checbox-item" @click="handleTheme(SideThemeEnum.DARK)">
@@ -64,19 +64,19 @@
       </div>
     </div>
     <div class="drawer-item">
-      <span>主题颜色</span>
+      <span>{{ $tt('主题颜色') }}</span>
       <span class="comp-style">
         <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange" />
       </span>
     </div>
     <div class="drawer-item">
-      <span>深色模式</span>
+      <span>{{ $tt('深色模式') }}</span>
       <span class="comp-style">
         <el-switch v-model="isDark" class="drawer-switch" @change="toggleDark" />
       </span>
     </div>
     <div class="drawer-item">
-      <span>页面圆角</span>
+      <span>{{ $tt('页面圆角') }}</span>
       <span class="comp-style">
         <el-slider v-model="radiusBase" :min="0" :max="32" :step="2" style="width: 120px" @change="radiusBaseChange" />
       </span>
@@ -84,38 +84,38 @@
 
     <el-divider />
 
-    <h3 class="drawer-title">系统布局配置</h3>
+    <h3 class="drawer-title">{{ $tt('系统布局配置') }}</h3>
 
     <div class="drawer-item">
-      <span>开启 Tags-Views</span>
+      <span>{{ $tt('开启 Tags-Views') }}</span>
       <span class="comp-style">
         <el-switch v-model="settingsStore.tagsView" class="drawer-switch" />
       </span>
     </div>
 
     <div class="drawer-item">
-      <span>显示页签图标</span>
+      <span>{{ $tt('显示页签图标') }}</span>
       <span class="comp-style">
         <el-switch v-model="settingsStore.tagsIcon" :disabled="!settingsStore.tagsView" class="drawer-switch" />
       </span>
     </div>
 
     <div class="drawer-item">
-      <span>固定 Header</span>
+      <span>{{ $tt('固定 Header') }}</span>
       <span class="comp-style">
         <el-switch v-model="settingsStore.fixedHeader" class="drawer-switch" />
       </span>
     </div>
 
     <div class="drawer-item">
-      <span>显示 Logo</span>
+      <span>{{ $tt('显示 Logo') }}</span>
       <span class="comp-style">
         <el-switch v-model="settingsStore.sidebarLogo" class="drawer-switch" />
       </span>
     </div>
 
     <div class="drawer-item">
-      <span>动态标题</span>
+      <span>{{ $tt('动态标题') }}</span>
       <span class="comp-style">
         <el-switch v-model="settingsStore.dynamicTitle" class="drawer-switch" @change="dynamicTitleChange" />
       </span>
@@ -123,12 +123,13 @@
 
     <el-divider />
 
-    <el-button type="primary" plain icon="DocumentAdd" @click="saveSetting">保存配置</el-button>
-    <el-button plain icon="Refresh" @click="resetSetting">重置配置</el-button>
+    <el-button type="primary" plain icon="DocumentAdd" @click="saveSetting">{{ $tt('保存配置') }}</el-button>
+    <el-button plain icon="Refresh" @click="resetSetting">{{ $tt('重置配置') }}</el-button>
   </el-drawer>
 </template>
 
 <script setup lang="ts">
+import { tt } from '@/utils/i18n';
 import { useDynamicTitle } from '@/utils/dynamicTitle';
 import { useAppStore } from '@/store/modules/app';
 import { useSettingsStore } from '@/store/modules/settings';
@@ -217,7 +218,7 @@ const handleTheme = (val: string) => {
   settingsStore.sideTheme = val;
 };
 const saveSetting = () => {
-  proxy?.$modal.loading('正在保存到本地，请稍候...');
+  proxy?.$modal.loading(tt('正在保存到本地，请稍候...'));
   const settings = useStorage<LayoutSetting>('layout-setting', defaultSettings);
   settings.value.tagsView = storeSettings.value.tagsView;
   settings.value.tagsIcon = storeSettings.value.tagsIcon;
@@ -233,7 +234,7 @@ const saveSetting = () => {
   }, 1000);
 };
 const resetSetting = () => {
-  proxy?.$modal.loading('正在清除设置缓存并刷新，请稍候...');
+  proxy?.$modal.loading(tt('正在清除设置缓存并刷新，请稍候...'));
   useStorage<any>('layout-setting', null).value = null;
   setTimeout('window.location.reload()', 1000);
 };

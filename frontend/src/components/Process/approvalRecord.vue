@@ -1,50 +1,50 @@
 <template>
   <div class="container">
-    <el-dialog v-model="visible" draggable title="审批记录" :width="props.width" :height="props.height" :close-on-click-modal="false">
+    <el-dialog v-model="visible" draggable :title="$tt('审批记录')" :width="props.width" :height="props.height" :close-on-click-modal="false">
       <el-tabs v-model="tabActiveName" class="demo-tabs">
-        <el-tab-pane v-loading="loading" label="流程图" name="image" style="height: 68vh">
+        <el-tab-pane v-loading="loading" :label="$tt('流程图')" name="image" style="height: 68vh">
           <flowChart :ins-id="insId" v-if="insId" />
         </el-tab-pane>
-        <el-tab-pane v-loading="loading" label="审批信息" name="info">
+        <el-tab-pane v-loading="loading" :label="$tt('审批信息')" name="info">
           <div>
             <el-table :data="historyList" style="width: 100%" border fit>
-              <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-              <el-table-column prop="nodeName" label="任务名称" sortable align="center"></el-table-column>
-              <el-table-column prop="approveName" :show-overflow-tooltip="true" label="办理人" sortable align="center">
+              <el-table-column type="index" :label="$tt('序号')" align="center" width="60"></el-table-column>
+              <el-table-column prop="nodeName" :label="$tt('任务名称')" sortable align="center"></el-table-column>
+              <el-table-column prop="approveName" :show-overflow-tooltip="true" :label="$tt('办理人')" sortable align="center">
                 <template #default="scope">
                   <template v-if="scope.row.approveName">
                     <el-tag v-for="(item, index) in scope.row.approveName.split(',')" :key="index" type="success">{{ item }}</el-tag>
                   </template>
-                  <template v-else> <el-tag type="success">无</el-tag></template>
+                  <template v-else> <el-tag type="success">{{ $tt('无') }}</el-tag></template>
                 </template>
               </el-table-column>
-              <el-table-column prop="flowStatus" label="状态" width="80" sortable align="center">
+              <el-table-column prop="flowStatus" :label="$tt('状态')" width="80" sortable align="center">
                 <template #default="scope">
                   <dict-tag :options="wf_task_status" :value="scope.row.flowStatus"></dict-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="message" label="审批意见" :show-overflow-tooltip="true" sortable align="center"></el-table-column>
-              <el-table-column prop="createTime" label="开始时间" width="160" :show-overflow-tooltip="true" sortable align="center"></el-table-column>
-              <el-table-column prop="updateTime" label="结束时间" width="160" :show-overflow-tooltip="true" sortable align="center"></el-table-column>
+              <el-table-column prop="message" :label="$tt('审批意见')" :show-overflow-tooltip="true" sortable align="center"></el-table-column>
+              <el-table-column prop="createTime" :label="$tt('开始时间')" width="160" :show-overflow-tooltip="true" sortable align="center"></el-table-column>
+              <el-table-column prop="updateTime" :label="$tt('结束时间')" width="160" :show-overflow-tooltip="true" sortable align="center"></el-table-column>
               <el-table-column
                 prop="runDuration"
-                label="运行时长"
+                :label="$tt('运行时长')"
                 width="140"
                 :show-overflow-tooltip="true"
                 sortable
                 align="center"
               ></el-table-column>
-              <el-table-column prop="attachmentList" width="120" label="附件" align="center">
+              <el-table-column prop="attachmentList" width="120" :label="$tt('附件')" align="center">
                 <template #default="scope">
                   <el-popover v-if="scope.row.attachmentList && scope.row.attachmentList.length > 0" placement="right" :width="310" trigger="click">
                     <template #reference>
-                      <el-button type="primary" style="margin-right: 16px">附件</el-button>
+                      <el-button type="primary" style="margin-right: 16px">{{ $tt('附件') }}</el-button>
                     </template>
                     <el-table border :data="scope.row.attachmentList">
-                      <el-table-column prop="originalName" width="202" :show-overflow-tooltip="true" label="附件名称"></el-table-column>
-                      <el-table-column prop="name" width="80" align="center" :show-overflow-tooltip="true" label="操作">
+                      <el-table-column prop="originalName" width="202" :show-overflow-tooltip="true" :label="$tt('附件名称')"></el-table-column>
+                      <el-table-column prop="name" width="80" align="center" :show-overflow-tooltip="true" :label="$tt('操作')">
                         <template #default="tool">
-                          <el-button type="text" @click="handleDownload(tool.row.ossId)">下载</el-button>
+                          <el-button type="text" @click="handleDownload(tool.row.ossId)">{{ $tt('下载') }}</el-button>
                         </template>
                       </el-table-column>
                     </el-table>

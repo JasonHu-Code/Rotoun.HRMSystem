@@ -27,7 +27,7 @@
         </el-select>
 
         <search-menu ref="searchMenuRef" />
-        <el-tooltip content="搜索" effect="dark" placement="bottom">
+        <el-tooltip :content="$tt('搜索')" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect" @click="openSearchMenu">
             <svg-icon class-name="search-icon" icon-class="search" />
           </div>
@@ -87,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { tt } from '@/utils/i18n';
 import SearchMenu from './TopBar/search.vue';
 import { useAppStore } from '@/store/modules/app';
 import { useUserStore } from '@/store/modules/user';
@@ -164,9 +165,9 @@ const toggleSideBar = () => {
 };
 
 const logout = async () => {
-  await ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(tt('确定注销并退出系统吗？'), tt('提示'), {
+    confirmButtonText: tt('确定'),
+    cancelButtonText: tt('取消'),
     type: 'warning'
   } as ElMessageBoxOptions);
   userStore.logout().then(() => {

@@ -8,6 +8,7 @@ import { errorCode } from '@/utils/errorCode';
 import { LoadingInstance } from 'element-plus/es/components/loading/src/loading';
 import FileSaver from 'file-saver';
 import { getLanguage } from '@/lang';
+import { tt } from '@/utils/i18n';
 import { encryptBase64, encryptWithAes, generateAesKey, decryptWithAes, decryptBase64 } from '@/utils/crypto';
 import { encrypt, decrypt } from '@/utils/jsencrypt';
 import router from '@/router';
@@ -73,7 +74,7 @@ service.interceptors.request.use(
         const s_time = sessionObj.time; // 请求时间
         const interval = 500; // 间隔时间(ms)，小于此时间视为重复提交
         if (s_data === requestObj.data && requestObj.time - s_time < interval && s_url === requestObj.url) {
-          const message = '数据正在处理，请勿重复提交';
+          const message = tt('数据正在处理，请勿重复提交');
           console.warn(`[${s_url}]: ` + message);
           return Promise.reject(new Error(message));
         } else {
@@ -132,9 +133,9 @@ service.interceptors.response.use(
       // prettier-ignore
       if (!isRelogin.show) {
         isRelogin.show = true;
-        ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
-          confirmButtonText: '重新登录',
-          cancelButtonText: '取消',
+        ElMessageBox.confirm(tt('登录状态已过期，您可以继续留在该页面，或者重新登录'), tt('系统提示'), {
+          confirmButtonText: tt('重新登录'),
+          cancelButtonText: tt('取消'),
           type: 'warning'
         }).then(() => {
           isRelogin.show = false;
@@ -150,7 +151,7 @@ service.interceptors.response.use(
           isRelogin.show = false;
         });
       }
-      return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
+      return Promise.reject(tt('无效的会话，或者会话已过期，请重新登录。'));
     } else if (code === HttpStatus.SERVER_ERROR) {
       ElMessage({ message: msg, type: 'error' });
       return Promise.reject(new Error(msg));
@@ -167,11 +168,11 @@ service.interceptors.response.use(
   (error: any) => {
     let { message } = error;
     if (message == 'Network Error') {
-      message = '后端接口连接异常';
+      message = tt('后端接口连接异常');
     } else if (message.includes('timeout')) {
-      message = '系统接口请求超时';
+      message = tt('系统接口请求超时');
     } else if (message.includes('Request failed with status code')) {
-      message = '系统接口' + message.substr(message.length - 3) + '异常';
+      message = tt('系统接口') + message.substr(message.length - 3) + tt('异常');
     }
     ElMessage({ message: message, type: 'error', duration: 5 * 1000 });
     return Promise.reject(error);
@@ -179,7 +180,7 @@ service.interceptors.response.use(
 );
 // 通用下载方法
 export function download(url: string, params: any, fileName: string) {
-  downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
+  downloadLoadingInstance = ElLoading.service({ text: tt('正在下载数据，请稍候'), background: 'rgba(0, 0, 0, 0.7)' });
   // prettier-ignore
   return service.post(url, params, {
       transformRequest: [
@@ -198,13 +199,14 @@ export function download(url: string, params: any, fileName: string) {
         const blob = new Blob([resp]);
         const resText = await blob.text();
         const rspObj = JSON.parse(resText);
-        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
+        // 后端 code 对应的兜底文案是中文常量，展示前统一过一遍字典
+        const errMsg = tt(errorCode[rspObj.code] || rspObj.msg || errorCode['default']);
         ElMessage.error(errMsg);
       }
       downloadLoadingInstance.close();
     }).catch((r: any) => {
       console.error(r);
-      ElMessage.error('下载文件出现错误，请联系管理员！');
+      ElMessage.error(tt('下载文件出现错误，请联系管理员！'));
       downloadLoadingInstance.close();
     });
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="relative" :style="{ 'width': width }">
-    <el-input v-model="modelValue" readonly placeholder="点击选择图标" @click="visible = !visible">
+    <el-input v-model="modelValue" readonly :placeholder="$tt('点击选择图标')" @click="visible = !visible">
       <template #prepend>
         <svg-icon :icon-class="modelValue" />
       </template>
@@ -14,7 +14,7 @@
         </div>
       </template>
 
-      <el-input v-model="filterValue" class="p-2" placeholder="搜索图标" clearable @input="filterIcons" />
+      <el-input v-model="filterValue" class="p-2" :placeholder="$tt('搜索图标')" clearable @input="filterIcons" />
 
       <el-scrollbar height="w-[200px]">
         <ul class="icon-list">

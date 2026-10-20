@@ -5,16 +5,16 @@
         <div v-show="showSearch" class="mb-[10px]">
           <el-card shadow="hover">
             <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-              <el-form-item label="角色名称" prop="roleName">
-                <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable @keyup.enter="handleQuery" />
+              <el-form-item :label="$tt('角色名称')" prop="roleName">
+                <el-input v-model="queryParams.roleName" :placeholder="$tt('请输入角色名称')" clearable @keyup.enter="handleQuery" />
               </el-form-item>
-              <el-form-item label="权限字符" prop="roleKey">
-                <el-input v-model="queryParams.roleKey" placeholder="请输入权限字符" clearable @keyup.enter="handleQuery" />
+              <el-form-item :label="$tt('权限字符')" prop="roleKey">
+                <el-input v-model="queryParams.roleKey" :placeholder="$tt('请输入权限字符')" clearable @keyup.enter="handleQuery" />
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+                <el-button type="primary" icon="Search" @click="handleQuery">{{ $tt('搜索') }}</el-button>
+                <el-button icon="Refresh" @click="resetQuery">{{ $tt('重置') }}</el-button>
               </el-form-item>
             </el-form>
           </el-card>
@@ -42,16 +42,16 @@
           @checkbox-change="handleCheckboxChange"
         >
           <vxe-column type="checkbox" width="50" align="center" />
-          <vxe-column v-if="false" key="roleId" label="角色编号" />
-          <vxe-column field="roleName" title="角色名称" />
-          <vxe-column field="roleKey" title="权限字符" />
-          <vxe-column field="roleSort" title="显示顺序" width="100" />
-          <vxe-column title="状态" align="center" width="100">
+          <vxe-column v-if="false" key="roleId" :label="$tt('角色编号')" />
+          <vxe-column field="roleName" :title="$tt('角色名称')" />
+          <vxe-column field="roleKey" :title="$tt('权限字符')" />
+          <vxe-column field="roleSort" :title="$tt('显示顺序')" width="100" />
+          <vxe-column :title="$tt('状态')" align="center" width="100">
             <template #default="scope">
               <dict-tag :options="sys_normal_disable" :value="scope.row.status"></dict-tag>
             </template>
           </vxe-column>
-          <vxe-column field="createTime" title="创建时间" align="center">
+          <vxe-column field="createTime" :title="$tt('创建时间')" align="center">
             <template #default="scope">
               <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
             </template>
@@ -67,14 +67,15 @@
         />
       </el-card>
       <template #footer>
-        <el-button @click="close">取消</el-button>
-        <el-button type="primary" @click="confirm">确定</el-button>
+        <el-button @click="close">{{ $tt('取消') }}</el-button>
+        <el-button type="primary" @click="confirm">{{ $tt('确定') }}</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import { tt } from '@/utils/i18n';
 import { RoleVO, RoleQuery } from '@/api/system/role/types';
 import { VxeTableInstance } from 'vxe-table';
 import useDialog from '@/hooks/useDialog';
@@ -103,7 +104,7 @@ const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
 const selectRoleList = ref<RoleVO[]>([]);
 
 const roleDialog = useDialog({
-  title: '角色选择'
+  title: tt('角色选择')
 });
 
 const queryFormRef = ref<ElFormInstance>();

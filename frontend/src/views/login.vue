@@ -1,10 +1,17 @@
 <template>
   <div class="login">
+    <!-- 动态背景层：原图缓慢位移 + 流动光斑 + 漂浮微尘，纯 CSS 实现，不引第三方库 -->
+    <div class="login-bg" aria-hidden="true">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="glow glow-3"></div>
+      <div class="particles"></div>
+    </div>
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <div class="title-box">
         <div class="title-brand">
           <img src="@/assets/logo/logo.png" class="login-logo" alt="logo" />
-          <h3 class="title">{{ title }}</h3>
+          <h3 class="title">{{ $tt(title) }}</h3>
         </div>
         <lang-select />
       </div>
@@ -76,7 +83,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2018-2026 疯狂的狮子Li All Rights Reserved.</span>
+      <span>© 2026 瑞堂塑料集团 Rotoun Group. All Rights Reserved.</span>
     </div>
   </div>
 </template>
@@ -237,13 +244,150 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .login {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
+  overflow: hidden;
+  // 兜底底色，避免背景图解码前闪白
+  background: #2f7fe8;
+}
+
+// 背景图层单独抽出：图片做极缓慢推拉，叠加上面的光斑与微尘
+.login-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   background-image: url('../assets/images/login-background.jpg');
   background-size: cover;
   background-position: center;
+  animation: bg-drift 42s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.glow-1 {
+  width: 44vw;
+  height: 44vw;
+  left: -12vw;
+  top: -14vw;
+  background: radial-gradient(circle, rgba(126, 200, 255, 0.85) 0%, rgba(126, 200, 255, 0) 68%);
+  animation: glow-drift-a 26s ease-in-out infinite;
+}
+
+.glow-2 {
+  width: 38vw;
+  height: 38vw;
+  right: -10vw;
+  bottom: -12vw;
+  background: radial-gradient(circle, rgba(255, 158, 92, 0.55) 0%, rgba(255, 158, 92, 0) 70%);
+  animation: glow-drift-b 32s ease-in-out infinite;
+}
+
+.glow-3 {
+  width: 30vw;
+  height: 30vw;
+  left: 42%;
+  top: 6%;
+  background: radial-gradient(circle, rgba(90, 170, 255, 0.6) 0%, rgba(90, 170, 255, 0) 72%);
+  animation: glow-drift-c 22s ease-in-out infinite;
+}
+
+.particles {
+  position: absolute;
+  inset: -30%;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 1px, transparent 1.6px);
+  background-size: 84px 84px;
+  opacity: 0.16;
+  animation: particle-rise 60s linear infinite;
+}
+
+@keyframes bg-drift {
+  from {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.6%, -1.2%, 0);
+  }
+}
+
+@keyframes glow-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, 4vh, 0) scale(1.12);
+  }
+}
+
+@keyframes glow-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-5vw, -5vh, 0) scale(0.94);
+  }
+}
+
+@keyframes glow-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-4vw, 6vh, 0);
+  }
+}
+
+@keyframes particle-rise {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -840px;
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes logo-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+// 尊重系统的"减少动态效果"设置：无障碍要求，也避免低配机器掉帧
+@media (prefers-reduced-motion: reduce) {
+  .login-bg,
+  .glow,
+  .particles,
+  .login-form,
+  .title-brand .login-logo {
+    animation: none !important;
+  }
 }
 
 .title-box {
@@ -263,6 +407,7 @@ onMounted(() => {
     width: 36px;
     height: 36px;
     flex: 0 0 auto;
+    animation: logo-breathe 6s ease-in-out infinite;
   }
 
   .title {
@@ -289,6 +434,7 @@ onMounted(() => {
   box-shadow: var(--app-shadow-lg);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  animation: card-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
   .el-input {
     height: 40px;
     input {
@@ -355,16 +501,19 @@ onMounted(() => {
 }
 
 .el-login-footer {
-  height: 40px;
-  line-height: 40px;
+  height: auto;
+  line-height: 1.6;
   position: fixed;
-  bottom: 0;
+  bottom: 14px;
   width: 100%;
   text-align: center;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
+  /* 背景是浅蓝色块，纯白字容易糊掉，加一层极淡投影把字从背景里"抬"起来 */
+  text-shadow: 0 1px 2px rgba(0, 60, 120, 0.35);
   font-family: Arial, serif;
   font-size: 12px;
   letter-spacing: 1px;
+  pointer-events: none;
 }
 
 .login-code-img {

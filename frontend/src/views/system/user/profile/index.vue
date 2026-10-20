@@ -5,7 +5,7 @@
         <el-card class="box-card">
           <template #header>
             <div class="clearfix">
-              <span>个人信息</span>
+              <span>{{ $tt('个人信息') }}</span>
             </div>
           </template>
           <div>
@@ -14,28 +14,22 @@
             </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
-                <svg-icon icon-class="user" />用户名称
-                <div class="pull-right">{{ state.user.userName }}</div>
+                <svg-icon icon-class="user" />{{ $tt('用户名称') }}<div class="pull-right">{{ state.user.userName }}</div>
               </li>
               <li class="list-group-item">
-                <svg-icon icon-class="phone" />手机号码
-                <div class="pull-right">{{ state.user.phonenumber }}</div>
+                <svg-icon icon-class="phone" />{{ $tt('手机号码') }}<div class="pull-right">{{ state.user.phonenumber }}</div>
               </li>
               <li class="list-group-item">
-                <svg-icon icon-class="email" />用户邮箱
-                <div class="pull-right">{{ state.user.email }}</div>
+                <svg-icon icon-class="email" />{{ $tt('用户邮箱') }}<div class="pull-right">{{ state.user.email }}</div>
               </li>
               <li class="list-group-item">
-                <svg-icon icon-class="tree" />所属部门
-                <div v-if="state.user.deptName" class="pull-right">{{ state.user.deptName }} / {{ state.postGroup }}</div>
+                <svg-icon icon-class="tree" />{{ $tt('所属部门') }}<div v-if="state.user.deptName" class="pull-right">{{ state.user.deptName }} / {{ state.postGroup }}</div>
               </li>
               <li class="list-group-item">
-                <svg-icon icon-class="peoples" />所属角色
-                <div class="pull-right">{{ state.roleGroup }}</div>
+                <svg-icon icon-class="peoples" />{{ $tt('所属角色') }}<div class="pull-right">{{ state.roleGroup }}</div>
               </li>
               <li class="list-group-item">
-                <svg-icon icon-class="date" />创建日期
-                <div class="pull-right">{{ state.user.createTime }}</div>
+                <svg-icon icon-class="date" />{{ $tt('创建日期') }}<div class="pull-right">{{ state.user.createTime }}</div>
               </li>
             </ul>
           </div>
@@ -45,20 +39,20 @@
         <el-card>
           <template #header>
             <div class="clearfix">
-              <span>基本资料</span>
+              <span>{{ $tt('基本资料') }}</span>
             </div>
           </template>
           <el-tabs v-model="activeTab">
-            <el-tab-pane label="基本资料" name="userinfo">
+            <el-tab-pane :label="$tt('基本资料')" name="userinfo">
               <userInfo :user="userForm" />
             </el-tab-pane>
-            <el-tab-pane label="修改密码" name="resetPwd">
+            <el-tab-pane :label="$tt('修改密码')" name="resetPwd">
               <resetPwd />
             </el-tab-pane>
-            <el-tab-pane label="第三方应用" name="thirdParty">
+            <el-tab-pane :label="$tt('第三方应用')" name="thirdParty">
               <thirdParty :auths="state.auths" />
             </el-tab-pane>
-            <el-tab-pane label="在线设备" name="onlineDevice">
+            <el-tab-pane :label="$tt('在线设备')" name="onlineDevice">
               <onlineDevice :devices="state.devices" />
             </el-tab-pane>
           </el-tabs>

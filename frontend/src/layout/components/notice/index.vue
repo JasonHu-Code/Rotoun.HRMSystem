@@ -1,8 +1,8 @@
 <template>
   <div v-loading="state.loading" class="layout-navbars-breadcrumb-user-news">
     <div class="head-box">
-      <div class="head-box-title">通知公告</div>
-      <div class="head-box-btn" @click="readAll">全部已读</div>
+      <div class="head-box-title">{{ $tt('通知公告') }}</div>
+      <div class="head-box-btn" @click="readAll">{{ $tt('全部已读') }}</div>
     </div>
     <div v-loading="state.loading" class="content-box">
       <template v-if="newsList.length > 0">
@@ -13,13 +13,13 @@
             <div class="content-box-time">{{ v.time }}</div>
           </div>
           <!-- 已读/未读 -->
-          <span v-if="v.read" class="el-tag el-tag--success el-tag--mini read">已读</span>
-          <span v-else class="el-tag el-tag--danger el-tag--mini read">未读</span>
+          <span v-if="v.read" class="el-tag el-tag--success el-tag--mini read">{{ $tt('已读') }}</span>
+          <span v-else class="el-tag el-tag--danger el-tag--mini read">{{ $tt('未读') }}</span>
         </div>
       </template>
-      <el-empty v-else :description="'消息为空'"></el-empty>
+      <el-empty v-else :description="$tt('消息为空')"></el-empty>
     </div>
-    <div v-if="newsList.length > 0" class="foot-box" @click="onGoToGiteeClick">前往gitee</div>
+    <div v-if="newsList.length > 0" class="foot-box" @click="onGoToGiteeClick">{{ $tt('前往gitee') }}</div>
   </div>
 </template>
 

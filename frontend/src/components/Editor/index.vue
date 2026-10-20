@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { tt, ttf } from '@/utils/i18n';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 import { QuillEditor, Quill } from '@vueup/vue-quill';
@@ -90,7 +91,7 @@ const options = ref<any>({
       }
     }
   },
-  placeholder: '请输入内容',
+  placeholder: tt('请输入内容'),
   readOnly: props.readOnly
 });
 
@@ -130,7 +131,7 @@ const handleUploadSuccess = (res: any) => {
     quill.setSelection(length + 1);
     proxy?.$modal.closeLoading();
   } else {
-    proxy?.$modal.msgError('图片插入失败');
+    proxy?.$modal.msgError(tt('图片插入失败'));
     proxy?.$modal.closeLoading();
   }
 };
@@ -141,24 +142,24 @@ const handleBeforeUpload = (file: any) => {
   const isJPG = type.includes(file.type);
   //检验文件格式
   if (!isJPG) {
-    proxy?.$modal.msgError(`图片格式错误!`);
+    proxy?.$modal.msgError(tt('图片格式错误!'));
     return false;
   }
   // 校检文件大小
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize;
     if (!isLt) {
-      proxy?.$modal.msgError(`上传文件大小不能超过 ${props.fileSize} MB!`);
+      proxy?.$modal.msgError(ttf('上传文件大小不能超过 {0} MB!', props.fileSize));
       return false;
     }
   }
-  proxy?.$modal.loading('正在上传文件，请稍候...');
+  proxy?.$modal.loading(tt('正在上传文件，请稍候...'));
   return true;
 };
 
 // 图片失败拦截
 const handleUploadError = (err: any) => {
-  proxy?.$modal.msgError('上传文件失败');
+  proxy?.$modal.msgError(tt('上传文件失败'));
 };
 </script>
 
@@ -175,15 +176,15 @@ const handleUploadError = (err: any) => {
   display: none;
 }
 .ql-snow .ql-tooltip[data-mode='link']::before {
-  content: '请输入链接地址:';
+  content: tt('请输入链接地址:');
 }
 .ql-snow .ql-tooltip.ql-editing a.ql-action::after {
   border-right: 0;
-  content: '保存';
+  content: tt('保存');
   padding-right: 0;
 }
 .ql-snow .ql-tooltip[data-mode='video']::before {
-  content: '请输入视频地址:';
+  content: tt('请输入视频地址:');
 }
 .ql-snow .ql-picker.ql-size .ql-picker-label::before,
 .ql-snow .ql-picker.ql-size .ql-picker-item::before {
@@ -203,42 +204,42 @@ const handleUploadError = (err: any) => {
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item::before {
-  content: '文本';
+  content: tt('文本');
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='1']::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='1']::before {
-  content: '标题1';
+  content: tt('标题1');
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='2']::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='2']::before {
-  content: '标题2';
+  content: tt('标题2');
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='3']::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='3']::before {
-  content: '标题3';
+  content: tt('标题3');
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='4']::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='4']::before {
-  content: '标题4';
+  content: tt('标题4');
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='5']::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='5']::before {
-  content: '标题5';
+  content: tt('标题5');
 }
 .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='6']::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='6']::before {
-  content: '标题6';
+  content: tt('标题6');
 }
 .ql-snow .ql-picker.ql-font .ql-picker-label::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item::before {
-  content: '标准字体';
+  content: tt('标准字体');
 }
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='serif']::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='serif']::before {
-  content: '衬线字体';
+  content: tt('衬线字体');
 }
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='monospace']::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='monospace']::before {
-  content: '等宽字体';
+  content: tt('等宽字体');
 }
 </style>

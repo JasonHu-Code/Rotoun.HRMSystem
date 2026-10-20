@@ -9,7 +9,7 @@
 
     <!-- 顶部菜单超出数量折叠 -->
     <el-sub-menu v-if="topMenus.length > visibleNumber" :style="{ '--theme': theme }" index="more">
-      <template #title>更多菜单</template>
+      <template #title>{{ $tt('更多菜单') }}</template>
       <template v-for="(item, index) in topMenus">
         <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path"
           ><svg-icon :icon-class="item.meta ? item.meta.icon : ''" /> {{ item.meta?.title }}</el-menu-item

@@ -3,15 +3,15 @@
     <div class="mb-[10px]">
       <el-card shadow="hover">
         <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-          <el-form-item label="登录地址" prop="ipaddr">
-            <el-input v-model="queryParams.ipaddr" placeholder="请输入登录地址" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="$tt('登录地址')" prop="ipaddr">
+            <el-input v-model="queryParams.ipaddr" :placeholder="$tt('请输入登录地址')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="用户名称" prop="userName">
-            <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="$tt('用户名称')" prop="userName">
+            <el-input v-model="queryParams.userName" :placeholder="$tt('请输入用户名称')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ $tt('搜索') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ $tt('重置') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -23,32 +23,32 @@
         :data="onlineList.slice((queryParams.pageNum - 1) * queryParams.pageSize, queryParams.pageNum * queryParams.pageSize)"
         style="width: 100%"
       >
-        <el-table-column label="序号" width="50" type="index" align="center">
+        <el-table-column :label="$tt('序号')" width="50" type="index" align="center">
           <template #default="scope">
             <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="会话编号" align="center" prop="tokenId" :show-overflow-tooltip="true" />
-        <el-table-column label="登录名称" align="center" prop="userName" :show-overflow-tooltip="true" />
-        <el-table-column label="客户端" align="center" prop="clientKey" :show-overflow-tooltip="true" />
-        <el-table-column label="设备类型" align="center">
+        <el-table-column :label="$tt('会话编号')" align="center" prop="tokenId" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('登录名称')" align="center" prop="userName" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('客户端')" align="center" prop="clientKey" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('设备类型')" align="center">
           <template #default="scope">
             <dict-tag :options="sys_device_type" :value="scope.row.deviceType" />
           </template>
         </el-table-column>
-        <el-table-column label="所属部门" align="center" prop="deptName" :show-overflow-tooltip="true" />
-        <el-table-column label="主机" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
-        <el-table-column label="登录地点" align="center" prop="loginLocation" :show-overflow-tooltip="true" />
-        <el-table-column label="操作系统" align="center" prop="os" :show-overflow-tooltip="true" />
-        <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
-        <el-table-column label="登录时间" align="center" prop="loginTime" width="180">
+        <el-table-column :label="$tt('所属部门')" align="center" prop="deptName" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('主机')" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('登录地点')" align="center" prop="loginLocation" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('操作系统')" align="center" prop="os" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('浏览器')" align="center" prop="browser" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('登录时间')" align="center" prop="loginTime" width="180">
           <template #default="scope">
             <span>{{ proxy.parseTime(scope.row.loginTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column :label="$tt('操作')" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="强退" placement="top">
+            <el-tooltip :content="$tt('强退')" placement="top">
               <el-button v-hasPermi="['monitor:online:forceLogout']" link type="primary" icon="Delete" @click="handleForceLogout(scope.row)">
               </el-button>
             </el-tooltip>
@@ -62,6 +62,7 @@
 </template>
 
 <script setup name="Online" lang="ts">
+import { tt } from '@/utils/i18n';
 import { forceLogout, list as initData } from '@/api/monitor/online';
 import { OnlineQuery, OnlineVO } from '@/api/monitor/online/types';
 import api from '@/api/system/user';
@@ -103,11 +104,11 @@ const resetQuery = () => {
 };
 /** 强退按钮操作 */
 const handleForceLogout = async (row: OnlineVO) => {
-  const [err] = await to(proxy?.$modal.confirm('是否确认强退名称为"' + row.userName + '"的用户?') as any);
+  const [err] = await to(proxy?.$modal.confirm(tt('是否确认强退名称为"') + row.userName + tt('"的用户?')) as any);
   if (!err) {
     await forceLogout(row.tokenId);
     await getList();
-    proxy?.$modal.msgSuccess('删除成功');
+    proxy?.$modal.msgSuccess(tt('删除成功'));
   }
 };
 

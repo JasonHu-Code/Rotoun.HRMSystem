@@ -1,14 +1,14 @@
 <template>
   <div style="display: flex; justify-content: space-between">
     <div>
-      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="info" @click="submitForm('draft', mode)">暂存</el-button>
-      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="primary" @click="submitForm('submit', mode)">提 交</el-button>
-      <el-button v-if="approvalButtonShow" :loading="props.buttonLoading" type="primary" @click="approvalVerifyOpen">审批</el-button>
-      <el-button v-if="props.id && props.status !== 'draft'" type="primary" @click="handleApprovalRecord">流程进度</el-button>
+      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="info" @click="submitForm('draft', mode)">{{ $tt('暂存') }}</el-button>
+      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="primary" @click="submitForm('submit', mode)">{{ $tt('提 交') }}</el-button>
+      <el-button v-if="approvalButtonShow" :loading="props.buttonLoading" type="primary" @click="approvalVerifyOpen">{{ $tt('审批') }}</el-button>
+      <el-button v-if="props.id && props.status !== 'draft'" type="primary" @click="handleApprovalRecord">{{ $tt('流程进度') }}</el-button>
       <slot />
     </div>
     <div>
-      <el-button style="float: right" @click="goBack()">返回</el-button>
+      <el-button style="float: right" @click="goBack()">{{ $tt('返回') }}</el-button>
     </div>
   </div>
 </template>

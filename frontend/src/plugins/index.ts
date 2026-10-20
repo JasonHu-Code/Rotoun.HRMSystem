@@ -8,6 +8,7 @@ import animate from '@/animate';
 
 import { download as dl } from '@/utils/request';
 import { useDict } from '@/utils/dict';
+import { tt } from '@/utils/i18n';
 import { getConfigKey, updateConfigByKey } from '@/api/system/config';
 import { parseTime, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/rotoun';
 
@@ -40,4 +41,7 @@ export default function installPlugin(app: App) {
   app.config.globalProperties.selectDictLabel = selectDictLabel;
   app.config.globalProperties.selectDictLabels = selectDictLabels;
   app.config.globalProperties.animate = animate;
+
+  // 扁平文案翻译：模板里直接写 $tt('用户名称')，中文环境原样返回，英文环境查 ui 词典
+  app.config.globalProperties.$tt = tt;
 }

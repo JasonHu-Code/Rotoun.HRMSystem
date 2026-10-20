@@ -67,12 +67,13 @@
     </el-form>
     <!--  底部  -->
     <div class="el-register-footer">
-      <span>Copyright © 2018-2026 疯狂的狮子Li All Rights Reserved.</span>
+      <span>© 2026 瑞堂塑料集团 Rotoun Group. All Rights Reserved.</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { tt, ttf } from '@/utils/i18n';
 import { getCodeImg, register, getTenantList } from '@/api/login';
 import { RegisterForm, TenantVO } from '@/api/types';
 import { to } from 'await-to-js';
@@ -137,7 +138,7 @@ const handleRegister = () => {
       const [err] = await to(register(registerForm.value));
       if (!err) {
         const username = registerForm.value.username;
-        await ElMessageBox.alert('<span style="color: red; ">' + t('register.registerSuccess', { username }) + '</font>', '系统提示', {
+        await ElMessageBox.alert('<span style="color: red; ">' + t('register.registerSuccess', { username }) + '</font>', tt('系统提示'), {
           app: undefined,
           dangerouslyUseHTMLString: true,
           type: 'success'

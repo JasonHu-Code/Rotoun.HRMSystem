@@ -8,6 +8,7 @@ import { isRelogin } from '@/utils/request';
 import { useUserStore } from '@/store/modules/user';
 import { useSettingsStore } from '@/store/modules/settings';
 import { usePermissionStore } from '@/store/modules/permission';
+import { translateRouteTitle } from '@/utils/i18n';
 import { ElMessage } from 'element-plus/es';
 
 NProgress.configure({ showSpinner: false });
@@ -20,7 +21,7 @@ const isWhiteList = (path: string) => {
 router.beforeEach(async (to, from, next) => {
   NProgress.start();
   if (getToken()) {
-    to.meta.title && useSettingsStore().setTitle(to.meta.title as string);
+    to.meta.title && useSettingsStore().setTitle(translateRouteTitle(to.meta.title as string));
     /* has token*/
     if (to.path === '/login') {
       next({ path: '/' });

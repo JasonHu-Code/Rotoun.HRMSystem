@@ -1,31 +1,31 @@
 <template>
   <el-row>
-    <el-dialog v-model="visible" title="选择用户" width="800px" top="5vh" append-to-body>
+    <el-dialog v-model="visible" :title="$tt('选择用户')" width="800px" top="5vh" append-to-body>
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item label="用户名称" prop="userName">
-          <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
+        <el-form-item :label="$tt('用户名称')" prop="userName">
+          <el-input v-model="queryParams.userName" :placeholder="$tt('请输入用户名称')" clearable @keyup.enter="handleQuery" />
         </el-form-item>
-        <el-form-item label="手机号码" prop="phonenumber">
-          <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
+        <el-form-item :label="$tt('手机号码')" prop="phonenumber">
+          <el-input v-model="queryParams.phonenumber" :placeholder="$tt('请输入手机号码')" clearable @keyup.enter="handleQuery" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          <el-button type="primary" icon="Search" @click="handleQuery">{{ $tt('搜索') }}</el-button>
+          <el-button icon="Refresh" @click="resetQuery">{{ $tt('重置') }}</el-button>
         </el-form-item>
       </el-form>
       <el-row>
         <el-table ref="tableRef" border :data="userList" height="260px" @row-click="clickRow" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
-          <el-table-column label="用户昵称" prop="nickName" :show-overflow-tooltip="true" />
-          <el-table-column label="邮箱" prop="email" :show-overflow-tooltip="true" />
-          <el-table-column label="手机" prop="phonenumber" :show-overflow-tooltip="true" />
-          <el-table-column label="状态" align="center" prop="status">
+          <el-table-column :label="$tt('用户名称')" prop="userName" :show-overflow-tooltip="true" />
+          <el-table-column :label="$tt('用户昵称')" prop="nickName" :show-overflow-tooltip="true" />
+          <el-table-column :label="$tt('邮箱')" prop="email" :show-overflow-tooltip="true" />
+          <el-table-column :label="$tt('手机')" prop="phonenumber" :show-overflow-tooltip="true" />
+          <el-table-column :label="$tt('状态')" align="center" prop="status">
             <template #default="scope">
               <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+          <el-table-column :label="$tt('创建时间')" align="center" prop="createTime" width="180">
             <template #default="scope">
               <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
             </template>
@@ -35,8 +35,8 @@
       </el-row>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="handleSelectUser">确 定</el-button>
-          <el-button @click="visible = false">取 消</el-button>
+          <el-button type="primary" @click="handleSelectUser">{{ $tt('确 定') }}</el-button>
+          <el-button @click="visible = false">{{ $tt('取 消') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -44,6 +44,7 @@
 </template>
 
 <script setup name="SelectUser" lang="ts">
+import { tt } from '@/utils/i18n';
 import { authUserSelectAll, unallocatedUserList } from '@/api/system/role';
 import { UserVO } from '@/api/system/user/types';
 import { UserQuery } from '@/api/system/user/types';
@@ -115,11 +116,11 @@ const handleSelectUser = async () => {
   const roleId = queryParams.roleId;
   const ids = userIds.value.join(',');
   if (ids == '') {
-    proxy?.$modal.msgError('请选择要分配的用户');
+    proxy?.$modal.msgError(tt('请选择要分配的用户'));
     return;
   }
   await authUserSelectAll({ roleId, userIds: ids });
-  proxy?.$modal.msgSuccess('分配成功');
+  proxy?.$modal.msgSuccess(tt('分配成功'));
   emit('ok');
   visible.value = false;
 };

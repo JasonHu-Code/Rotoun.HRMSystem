@@ -3,15 +3,15 @@
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div v-show="showSearch" class="search">
         <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-          <el-form-item label="用户名称" prop="userName">
-            <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="$tt('用户名称')" prop="userName">
+            <el-input v-model="queryParams.userName" :placeholder="$tt('请输入用户名称')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
-            <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="$tt('手机号码')" prop="phonenumber">
+            <el-input v-model="queryParams.phonenumber" :placeholder="$tt('请输入手机号码')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ $tt('搜索') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ $tt('重置') }}</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -20,38 +20,36 @@
       <template #header>
         <el-row :gutter="10">
           <el-col :span="1.5">
-            <el-button v-hasPermi="['system:role:add']" type="primary" plain icon="Plus" @click="openSelectUser">添加用户</el-button>
+            <el-button v-hasPermi="['system:role:add']" type="primary" plain icon="Plus" @click="openSelectUser">{{ $tt('添加用户') }}</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button v-hasPermi="['system:role:remove']" type="danger" plain icon="CircleClose" :disabled="multiple" @click="cancelAuthUserAll">
-              批量取消授权
-            </el-button>
+            <el-button v-hasPermi="['system:role:remove']" type="danger" plain icon="CircleClose" :disabled="multiple" @click="cancelAuthUserAll">{{ $tt('批量取消授权') }}</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="warning" plain icon="Close" @click="handleClose">关闭</el-button>
+            <el-button type="warning" plain icon="Close" @click="handleClose">{{ $tt('关闭') }}</el-button>
           </el-col>
           <right-toolbar v-model:show-search="showSearch" :search="true" @query-table="getList"></right-toolbar>
         </el-row>
       </template>
       <el-table v-loading="loading" border :data="userList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
-        <el-table-column label="用户昵称" prop="nickName" :show-overflow-tooltip="true" />
-        <el-table-column label="邮箱" prop="email" :show-overflow-tooltip="true" />
-        <el-table-column label="手机" prop="phonenumber" :show-overflow-tooltip="true" />
-        <el-table-column label="状态" align="center" prop="status">
+        <el-table-column :label="$tt('用户名称')" prop="userName" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('用户昵称')" prop="nickName" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('邮箱')" prop="email" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('手机')" prop="phonenumber" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('状态')" align="center" prop="status">
           <template #default="scope">
             <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <el-table-column :label="$tt('创建时间')" align="center" prop="createTime" width="180">
           <template #default="scope">
             <span>{{ scope.row.createTime }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column :label="$tt('操作')" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="取消授权" placement="top">
+            <el-tooltip :content="$tt('取消授权')" placement="top">
               <el-button v-hasPermi="['system:role:remove']" link type="primary" icon="CircleClose" @click="cancelAuthUser(scope.row)"> </el-button>
             </el-tooltip>
           </template>
@@ -65,6 +63,7 @@
 </template>
 
 <script setup name="AuthUser" lang="ts">
+import { tt } from '@/utils/i18n';
 import { allocatedUserList, authUserCancel, authUserCancelAll } from '@/api/system/role';
 import { UserQuery } from '@/api/system/user/types';
 import { UserVO } from '@/api/system/user/types';
@@ -137,19 +136,19 @@ const openSelectUser = () => {
 };
 /** 取消授权按钮操作 */
 const cancelAuthUser = async (row: UserVO) => {
-  await proxy?.$modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？');
+  await proxy?.$modal.confirm(tt('确认要取消该用户"') + row.userName + tt('"角色吗？'));
   await authUserCancel({ userId: row.userId, roleId: queryParams.roleId });
   await getList();
-  proxy?.$modal.msgSuccess('取消授权成功');
+  proxy?.$modal.msgSuccess(tt('取消授权成功'));
 };
 /** 批量取消授权按钮操作 */
 const cancelAuthUserAll = async () => {
   const roleId = queryParams.roleId;
   const uIds = userIds.value.join(',');
-  await proxy?.$modal.confirm('是否取消选中用户授权数据项?');
+  await proxy?.$modal.confirm(tt('是否取消选中用户授权数据项?'));
   await authUserCancelAll({ roleId: roleId, userIds: uIds });
   await getList();
-  proxy?.$modal.msgSuccess('取消授权成功');
+  proxy?.$modal.msgSuccess(tt('取消授权成功'));
 };
 
 onMounted(() => {

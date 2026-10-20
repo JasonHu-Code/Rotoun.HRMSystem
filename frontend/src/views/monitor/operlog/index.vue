@@ -4,39 +4,39 @@
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="操作地址" prop="operIp">
-              <el-input v-model="queryParams.operIp" placeholder="请输入操作地址" clearable @keyup.enter="handleQuery" />
+            <el-form-item :label="$tt('操作地址')" prop="operIp">
+              <el-input v-model="queryParams.operIp" :placeholder="$tt('请输入操作地址')" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="系统模块" prop="title">
-              <el-input v-model="queryParams.title" placeholder="请输入系统模块" clearable @keyup.enter="handleQuery" />
+            <el-form-item :label="$tt('系统模块')" prop="title">
+              <el-input v-model="queryParams.title" :placeholder="$tt('请输入系统模块')" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="操作人员" prop="operName">
-              <el-input v-model="queryParams.operName" placeholder="请输入操作人员" clearable @keyup.enter="handleQuery" />
+            <el-form-item :label="$tt('操作人员')" prop="operName">
+              <el-input v-model="queryParams.operName" :placeholder="$tt('请输入操作人员')" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="类型" prop="businessType">
-              <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable>
+            <el-form-item :label="$tt('类型')" prop="businessType">
+              <el-select v-model="queryParams.businessType" :placeholder="$tt('操作类型')" clearable>
                 <el-option v-for="dict in sys_oper_type" :key="dict.value" :label="dict.label" :value="dict.value" />
               </el-select>
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="queryParams.status" placeholder="操作状态" clearable>
+            <el-form-item :label="$tt('状态')" prop="status">
+              <el-select v-model="queryParams.status" :placeholder="$tt('操作状态')" clearable>
                 <el-option v-for="dict in sys_common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
               </el-select>
             </el-form-item>
-            <el-form-item label="操作时间" style="width: 308px">
+            <el-form-item :label="$tt('操作时间')" style="width: 308px">
               <el-date-picker
                 v-model="dateRange"
                 value-format="YYYY-MM-DD HH:mm:ss"
                 type="daterange"
                 range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
+                :start-placeholder="$tt('开始日期')"
+                :end-placeholder="$tt('结束日期')"
                 :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
               ></el-date-picker>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              <el-button type="primary" icon="Search" @click="handleQuery">{{ $tt('搜索') }}</el-button>
+              <el-button icon="Refresh" @click="resetQuery">{{ $tt('重置') }}</el-button>
             </el-form-item>
           </el-form>
         </el-card>
@@ -47,15 +47,13 @@
       <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
-            <el-button v-hasPermi="['monitor:operlog:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
-              删除
-            </el-button>
+            <el-button v-hasPermi="['monitor:operlog:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">{{ $tt('删除') }}</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button v-hasPermi="['monitor:operlog:remove']" type="danger" plain icon="WarnTriangleFilled" @click="handleClean">清空</el-button>
+            <el-button v-hasPermi="['monitor:operlog:remove']" type="danger" plain icon="WarnTriangleFilled" @click="handleClean">{{ $tt('清空') }}</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button v-hasPermi="['monitor:operlog:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+            <el-button v-hasPermi="['monitor:operlog:export']" type="warning" plain icon="Download" @click="handleExport">{{ $tt('导出') }}</el-button>
           </el-col>
           <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
         </el-row>
@@ -71,15 +69,15 @@
         @sort-change="handleSortChange"
       >
         <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="日志编号" align="center" prop="operId" />
-        <el-table-column label="系统模块" align="center" prop="title" :show-overflow-tooltip="true" />
-        <el-table-column label="操作类型" align="center" prop="businessType">
+        <el-table-column :label="$tt('日志编号')" align="center" prop="operId" />
+        <el-table-column :label="$tt('系统模块')" align="center" prop="title" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('操作类型')" align="center" prop="businessType">
           <template #default="scope">
             <dict-tag :options="sys_oper_type" :value="scope.row.businessType" />
           </template>
         </el-table-column>
         <el-table-column
-          label="操作人员"
+          :label="$tt('操作人员')"
           align="center"
           width="110"
           prop="operName"
@@ -87,20 +85,20 @@
           sortable="custom"
           :sort-orders="['descending', 'ascending']"
         />
-        <el-table-column label="部门" align="center" prop="deptName" width="130" :show-overflow-tooltip="true" />
-        <el-table-column label="操作地址" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
-        <el-table-column label="操作状态" align="center" prop="status">
+        <el-table-column :label="$tt('部门')" align="center" prop="deptName" width="130" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('操作地址')" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
+        <el-table-column :label="$tt('操作状态')" align="center" prop="status">
           <template #default="scope">
             <dict-tag :options="sys_common_status" :value="scope.row.status" />
           </template>
         </el-table-column>
-        <el-table-column label="操作日期" align="center" prop="operTime" width="180" sortable="custom" :sort-orders="['descending', 'ascending']">
+        <el-table-column :label="$tt('操作日期')" align="center" prop="operTime" width="180" sortable="custom" :sort-orders="['descending', 'ascending']">
           <template #default="scope">
             <span>{{ proxy.parseTime(scope.row.operTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="消耗时间"
+          :label="$tt('消耗时间')"
           align="center"
           prop="costTime"
           width="110"
@@ -109,12 +107,12 @@
           :sort-orders="['descending', 'ascending']"
         >
           <template #default="scope">
-            <span>{{ scope.row.costTime }}毫秒</span>
+            <span>{{ scope.row.costTime }}{{ $tt('毫秒') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" align="center" class-name="small-padding fixed-width">
+        <el-table-column :label="$tt('操作')" fixed="right" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="详细" placement="top">
+            <el-tooltip :content="$tt('详细')" placement="top">
               <el-button v-hasPermi="['monitor:operlog:query']" link type="primary" icon="View" @click="handleView(scope.row)"> </el-button>
             </el-tooltip>
           </template>
@@ -129,6 +127,7 @@
 </template>
 
 <script setup name="Operlog" lang="ts">
+import { tt } from '@/utils/i18n';
 import { list, delOperlog, cleanOperlog } from '@/api/monitor/operlog';
 import { OperLogForm, OperLogQuery, OperLogVO } from '@/api/monitor/operlog/types';
 import OperInfoDialog from './oper-info-dialog.vue';
@@ -231,18 +230,18 @@ const handleView = (row: OperLogVO) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: OperLogVO) => {
   const operIds = row?.operId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除日志编号为"' + operIds + '"的数据项?');
+  await proxy?.$modal.confirm(tt('是否确认删除日志编号为"') + operIds + tt('"的数据项?'));
   await delOperlog(operIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  proxy?.$modal.msgSuccess(tt('删除成功'));
 };
 
 /** 清空按钮操作 */
 const handleClean = async () => {
-  await proxy?.$modal.confirm('是否确认清空所有操作日志数据项?');
+  await proxy?.$modal.confirm(tt('是否确认清空所有操作日志数据项?'));
   await cleanOperlog();
   await getList();
-  proxy?.$modal.msgSuccess('清空成功');
+  proxy?.$modal.msgSuccess(tt('清空成功'));
 };
 
 /** 导出按钮操作 */

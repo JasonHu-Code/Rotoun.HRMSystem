@@ -206,9 +206,23 @@
         <div id="loader"></div>
         <div class="loader-section section-left"></div>
         <div class="loader-section section-right"></div>
-        <div class="load_title">正在加载系统资源，请耐心等待</div>
+        <div class="load_title" id="load_title">正在加载系统资源，请耐心等待</div>
       </div>
     </div>
+    <script>
+      // 开屏文案在 Vue 挂载之前就要显示，拿不到 i18n 实例，只能直接读本地语言偏好。
+      // 与 store/modules/app.ts 的 useStorage('language') 保持同一个 key。
+      (function () {
+        try {
+          if ((localStorage.getItem('language') || '').indexOf('en') === 0) {
+            var el = document.getElementById('load_title');
+            if (el) el.textContent = 'Loading system resources, please wait...';
+          }
+        } catch (e) {
+          /* 隐私模式下 localStorage 可能不可用，保留中文兜底即可 */
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

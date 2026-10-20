@@ -1,20 +1,20 @@
 <template>
   <el-card>
     <el-tabs v-model="activeName">
-      <el-tab-pane label="基本信息" name="basic">
+      <el-tab-pane :label="$tt('基本信息')" name="basic">
         <basic-info-form ref="basicInfo" :info="info" />
       </el-tab-pane>
-      <el-tab-pane label="字段信息" name="columnInfo">
+      <el-tab-pane :label="$tt('字段信息')" name="columnInfo">
         <el-table ref="dragTable" border :data="columns" row-key="columnId" :max-height="tableHeight">
-          <el-table-column label="序号" type="index" min-width="5%" />
-          <el-table-column label="字段列名" prop="columnName" min-width="10%" :show-overflow-tooltip="true" />
-          <el-table-column label="字段描述" min-width="10%">
+          <el-table-column :label="$tt('序号')" type="index" min-width="5%" />
+          <el-table-column :label="$tt('字段列名')" prop="columnName" min-width="10%" :show-overflow-tooltip="true" />
+          <el-table-column :label="$tt('字段描述')" min-width="10%">
             <template #default="scope">
               <el-input v-model="scope.row.columnComment"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="物理类型" prop="columnType" min-width="10%" :show-overflow-tooltip="true" />
-          <el-table-column label="Java类型" min-width="11%">
+          <el-table-column :label="$tt('物理类型')" prop="columnType" min-width="10%" :show-overflow-tooltip="true" />
+          <el-table-column :label="$tt('Java类型')" min-width="11%">
             <template #default="scope">
               <el-select v-model="scope.row.javaType">
                 <el-option label="Long" value="Long" />
@@ -27,33 +27,33 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="java属性" min-width="10%">
+          <el-table-column :label="$tt('java属性')" min-width="10%">
             <template #default="scope">
               <el-input v-model="scope.row.javaField"></el-input>
             </template>
           </el-table-column>
 
-          <el-table-column label="插入" min-width="5%">
+          <el-table-column :label="$tt('插入')" min-width="5%">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isInsert" true-value="1" false-value="0"></el-checkbox>
             </template>
           </el-table-column>
-          <el-table-column label="编辑" min-width="5%">
+          <el-table-column :label="$tt('编辑')" min-width="5%">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isEdit" true-value="1" false-value="0"></el-checkbox>
             </template>
           </el-table-column>
-          <el-table-column label="列表" min-width="5%">
+          <el-table-column :label="$tt('列表')" min-width="5%">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isList" true-value="1" false-value="0"></el-checkbox>
             </template>
           </el-table-column>
-          <el-table-column label="查询" min-width="5%">
+          <el-table-column :label="$tt('查询')" min-width="5%">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isQuery" true-value="1" false-value="0"></el-checkbox>
             </template>
           </el-table-column>
-          <el-table-column label="查询方式" min-width="10%">
+          <el-table-column :label="$tt('查询方式')" min-width="10%">
             <template #default="scope">
               <el-select v-model="scope.row.queryType">
                 <el-option label="=" value="EQ" />
@@ -67,29 +67,29 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="必填" min-width="5%">
+          <el-table-column :label="$tt('必填')" min-width="5%">
             <template #default="scope">
               <el-checkbox v-model="scope.row.isRequired" true-value="1" false-value="0"></el-checkbox>
             </template>
           </el-table-column>
-          <el-table-column label="显示类型" min-width="12%">
+          <el-table-column :label="$tt('显示类型')" min-width="12%">
             <template #default="scope">
               <el-select v-model="scope.row.htmlType">
-                <el-option label="文本框" value="input" />
-                <el-option label="文本域" value="textarea" />
-                <el-option label="下拉框" value="select" />
-                <el-option label="单选框" value="radio" />
-                <el-option label="复选框" value="checkbox" />
-                <el-option label="日期控件" value="datetime" />
-                <el-option label="图片上传" value="imageUpload" />
-                <el-option label="文件上传" value="fileUpload" />
-                <el-option label="富文本控件" value="editor" />
+                <el-option :label="$tt('文本框')" value="input" />
+                <el-option :label="$tt('文本域')" value="textarea" />
+                <el-option :label="$tt('下拉框')" value="select" />
+                <el-option :label="$tt('单选框')" value="radio" />
+                <el-option :label="$tt('复选框')" value="checkbox" />
+                <el-option :label="$tt('日期控件')" value="datetime" />
+                <el-option :label="$tt('图片上传')" value="imageUpload" />
+                <el-option :label="$tt('文件上传')" value="fileUpload" />
+                <el-option :label="$tt('富文本控件')" value="editor" />
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="字典类型" min-width="12%">
+          <el-table-column :label="$tt('字典类型')" min-width="12%">
             <template #default="scope">
-              <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择" value-on-clear="">
+              <el-select v-model="scope.row.dictType" clearable filterable :placeholder="$tt('请选择')" value-on-clear="">
                 <el-option v-for="dict in dictOptions" :key="dict.dictType" :label="dict.dictName" :value="dict.dictType">
                   <span style="float: left">{{ dict.dictName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
@@ -99,20 +99,21 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="生成信息" name="genInfo">
+      <el-tab-pane :label="$tt('生成信息')" name="genInfo">
         <gen-info-form ref="genInfo" :info="info" :tables="tables" />
       </el-tab-pane>
     </el-tabs>
     <el-form label-width="100px">
       <div style="text-align: center; margin-left: -100px; margin-top: 10px">
-        <el-button type="primary" @click="submitForm()">提交</el-button>
-        <el-button @click="close()">返回</el-button>
+        <el-button type="primary" @click="submitForm()">{{ $tt('提交') }}</el-button>
+        <el-button @click="close()">{{ $tt('返回') }}</el-button>
       </div>
     </el-form>
   </el-card>
 </template>
 
 <script setup name="GenEdit" lang="ts">
+import { tt } from '@/utils/i18n';
 import { getGenTable, updateGenTable } from '@/api/tool/gen';
 import { DbColumnVO, DbTableVO } from '@/api/tool/gen/types';
 import { optionselect as getDictOptionselect } from '@/api/system/dict/type';
@@ -156,7 +157,7 @@ const submitForm = () => {
         close();
       }
     } else {
-      proxy?.$modal.msgError('表单校验未通过，请重新检查提交内容');
+      proxy?.$modal.msgError(tt('表单校验未通过，请重新检查提交内容'));
     }
   });
 };

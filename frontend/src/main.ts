@@ -54,4 +54,8 @@ app.use(plugins);
 // 自定义指令
 directive(app);
 
+// html[lang] 跟随语言偏好：一是给读屏/浏览器翻译用，二是全局样式要靠它判断
+// 是否放开表单 label 宽度（英文字段名普遍比中文长，固定宽度会折行）
+document.documentElement.setAttribute('lang', (localStorage.getItem('language') || '').startsWith('en') ? 'en' : 'zh-CN');
+
 app.mount('#app');

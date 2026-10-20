@@ -7,7 +7,7 @@
           v-model="state.menuQuery"
           class="layout-search-dialog__autocomplete"
           :fetch-suggestions="menuSearch"
-          placeholder="搜索"
+          :placeholder="$tt('搜索')"
           :fit-input-width="true"
           @select="onHandleSelect"
         >
@@ -29,6 +29,7 @@
 <script setup lang="ts" name="layoutBreadcrumbSearch">
 import { getNormalPath } from '@/utils/rotoun';
 import { isHttp } from '@/utils/validate';
+import { translateRouteTitle } from '@/utils/i18n';
 import { usePermissionStore } from '@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';
 type Router = Array<{
@@ -88,7 +89,7 @@ const generateRoutes = (routes: RouteRecordRaw[], basePath = '', prefixTitle: st
         title: [...prefixTitle]
       };
       if (r.meta && r.meta.title) {
-        data.title = [...data.title, r.meta.title];
+        data.title = [...data.title, translateRouteTitle(r.meta.title)];
         if (r.redirect !== 'noRedirect') {
           // only push the routes with title
           // special case: need to exclude parent router without redirect

@@ -223,3 +223,22 @@ aside {
     margin-bottom: 10px;
   }
 }
+
+/* ------------------------------------------------------------------
+ * 英文环境下的表单排版修正
+ * 中文标签 4 个字 ≈ 56px，英文字段名（Mobile Number / Created At）同样宽度会折成两行，
+ * 页面里 label-width 是写死的 px（44 处），逐个改代价大且中文侧会变宽，
+ * 所以只在 html[lang=en] 下放开宽度，按内容自适应。
+ * ------------------------------------------------------------------ */
+html[lang='en'] {
+  .el-form-item__label {
+    width: auto !important;
+    min-width: 68px;
+    white-space: nowrap;
+  }
+
+  /* 表格列头同样容易被压成两行，给一个下限并允许换行间距更紧 */
+  .el-table th.el-table__cell > .cell {
+    line-height: 1.3;
+  }
+}

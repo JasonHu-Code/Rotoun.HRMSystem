@@ -8,7 +8,7 @@
           :index="index"
           :class="item.elTagClass"
         >
-          {{ item.label + ' ' }}
+          {{ $tt(item.label) + ' ' }}
         </span>
         <el-tag
           v-else
@@ -26,7 +26,7 @@
           "
           :class="item.elTagClass"
         >
-          {{ item.label + ' ' }}
+          {{ $tt(item.label) + ' ' }}
         </el-tag>
       </template>
     </template>

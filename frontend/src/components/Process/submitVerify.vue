@@ -1,74 +1,62 @@
 <template>
   <el-dialog v-model="dialog.visible" :title="dialog.title" width="50%" draggable :before-close="cancel" center :close-on-click-modal="false">
     <el-form v-loading="loading" :model="form" label-width="120px">
-      <el-form-item label="消息提醒">
+      <el-form-item :label="$tt('消息提醒')">
         <el-checkbox-group v-model="form.messageType">
-          <el-checkbox value="1" name="type" disabled>站内信</el-checkbox>
-          <el-checkbox value="2" name="type">邮件</el-checkbox>
-          <el-checkbox value="3" name="type">短信</el-checkbox>
+          <el-checkbox value="1" name="type" disabled>{{ $tt('站内信') }}</el-checkbox>
+          <el-checkbox value="2" name="type">{{ $tt('邮件') }}</el-checkbox>
+          <el-checkbox value="3" name="type">{{ $tt('短信') }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
-      <el-form-item label="附件" v-if="buttonObj.file">
+      <el-form-item :label="$tt('附件')" v-if="buttonObj.file">
         <fileUpload v-model="form.fileId" :file-type="['png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'txt', 'pdf']" :file-size="20" />
       </el-form-item>
-      <el-form-item label="抄送" v-if="buttonObj.copy">
+      <el-form-item :label="$tt('抄送')" v-if="buttonObj.copy">
         <el-button type="primary" icon="Plus" circle @click="openUserSelectCopy" />
         <el-tag v-for="user in selectCopyUserList" :key="user.userId" closable style="margin: 2px" @close="handleCopyCloseTag(user)">
           {{ user.nickName }}
         </el-tag>
       </el-form-item>
-      <el-form-item v-if="buttonObj.pop && nestNodeList && nestNodeList.length > 0" label="下一步审批人" prop="assigneeMap">
+      <el-form-item v-if="buttonObj.pop && nestNodeList && nestNodeList.length > 0" :label="$tt('下一步审批人')" prop="assigneeMap">
         <div v-for="(item, index) in nestNodeList" :key="index" style="margin-bottom: 5px; width: 500px">
           <span>【{{ item.nodeName }}】：</span>
           <el-input v-if="false" v-model="form.assigneeMap[item.nodeCode]" />
-          <el-input placeholder="请选择审批人" readonly v-model="nickName[item.nodeCode]">
+          <el-input :placeholder="$tt('请选择审批人')" readonly v-model="nickName[item.nodeCode]">
             <template v-slot:append>
-              <el-button @click="choosePeople(item)" icon="search">选择</el-button>
+              <el-button @click="choosePeople(item)" icon="search">{{ $tt('选择') }}</el-button>
             </template>
           </el-input>
         </div>
       </el-form-item>
-      <el-form-item v-if="task.flowStatus === 'waiting'" label="审批意见">
+      <el-form-item v-if="task.flowStatus === 'waiting'" :label="$tt('审批意见')">
         <el-input v-model="form.message" type="textarea" resize="none" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button :disabled="buttonDisabled" type="primary" @click="handleCompleteTask"> 提交 </el-button>
-        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.trust" :disabled="buttonDisabled" type="primary" @click="openDelegateTask">
-          委托
-        </el-button>
-        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.transfer" :disabled="buttonDisabled" type="primary" @click="openTransferTask">
-          转办
-        </el-button>
+        <el-button :disabled="buttonDisabled" type="primary" @click="handleCompleteTask">{{ $tt('提交') }}</el-button>
+        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.trust" :disabled="buttonDisabled" type="primary" @click="openDelegateTask">{{ $tt('委托') }}</el-button>
+        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.transfer" :disabled="buttonDisabled" type="primary" @click="openTransferTask">{{ $tt('转办') }}</el-button>
         <el-button
           v-if="task.flowStatus === 'waiting' && Number(task.nodeRatio) > 0 && buttonObj.addSign"
           :disabled="buttonDisabled"
           type="primary"
           @click="openMultiInstanceUser"
-        >
-          加签
-        </el-button>
+        >{{ $tt('加签') }}</el-button>
         <el-button
           v-if="task.flowStatus === 'waiting' && Number(task.nodeRatio) > 0 && buttonObj.subSign"
           :disabled="buttonDisabled"
           type="primary"
           @click="handleTaskUser"
-        >
-          减签
-        </el-button>
+        >{{ $tt('减签') }}</el-button>
         <el-button
           v-if="task.flowStatus === 'waiting' && buttonObj.termination"
           :disabled="buttonDisabled"
           type="danger"
           @click="handleTerminationTask"
-        >
-          终止
-        </el-button>
-        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.back" :disabled="buttonDisabled" type="danger" @click="handleBackProcessOpen">
-          退回
-        </el-button>
-        <el-button :disabled="buttonDisabled" @click="cancel">取消</el-button>
+        >{{ $tt('终止') }}</el-button>
+        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.back" :disabled="buttonDisabled" type="danger" @click="handleBackProcessOpen">{{ $tt('退回') }}</el-button>
+        <el-button :disabled="buttonDisabled" @click="cancel">{{ $tt('取消') }}</el-button>
       </span>
     </template>
     <!-- 抄送 -->
@@ -89,47 +77,47 @@
     ></UserSelect>
 
     <!-- 驳回开始 -->
-    <el-dialog v-model="backVisible" draggable title="驳回" width="40%" :close-on-click-modal="false">
+    <el-dialog v-model="backVisible" draggable :title="$tt('驳回')" width="40%" :close-on-click-modal="false">
       <el-form v-if="task.flowStatus === 'waiting'" v-loading="backLoading" :model="backForm" label-width="120px">
-        <el-form-item label="驳回节点">
-          <el-select v-model="backForm.nodeCode" clearable placeholder="请选择" style="width: 300px">
+        <el-form-item :label="$tt('驳回节点')">
+          <el-select v-model="backForm.nodeCode" clearable :placeholder="$tt('请选择')" style="width: 300px">
             <el-option v-for="item in taskNodeList" :key="item.nodeCode" :label="item.nodeName" :value="item.nodeCode" />
           </el-select>
         </el-form-item>
-        <el-form-item label="消息提醒">
+        <el-form-item :label="$tt('消息提醒')">
           <el-checkbox-group v-model="backForm.messageType">
-            <el-checkbox label="1" name="type" disabled>站内信</el-checkbox>
-            <el-checkbox label="2" name="type">邮件</el-checkbox>
-            <el-checkbox label="3" name="type">短信</el-checkbox>
+            <el-checkbox label="1" name="type" disabled>{{ $tt('站内信') }}</el-checkbox>
+            <el-checkbox label="2" name="type">{{ $tt('邮件') }}</el-checkbox>
+            <el-checkbox label="3" name="type">{{ $tt('短信') }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item v-if="task.flowStatus === 'waiting'" label="附件">
+        <el-form-item v-if="task.flowStatus === 'waiting'" :label="$tt('附件')">
           <fileUpload
             v-model="backForm.fileId"
             :file-type="['png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'txt', 'pdf']"
             :file-size="20"
           />
         </el-form-item>
-        <el-form-item label="审批意见">
+        <el-form-item :label="$tt('审批意见')">
           <el-input v-model="backForm.message" type="textarea" resize="none" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer" style="float: right; padding-bottom: 20px">
-          <el-button :disabled="backButtonDisabled" type="primary" @click="handleBackProcess">确认</el-button>
-          <el-button :disabled="backButtonDisabled" @click="backVisible = false">取消</el-button>
+          <el-button :disabled="backButtonDisabled" type="primary" @click="handleBackProcess">{{ $tt('确认') }}</el-button>
+          <el-button :disabled="backButtonDisabled" @click="backVisible = false">{{ $tt('取消') }}</el-button>
         </div>
       </template>
     </el-dialog>
     <!-- 驳回结束 -->
-    <el-dialog v-model="deleteSignatureVisible" draggable title="减签人员" width="700px" height="400px" append-to-body :close-on-click-modal="false">
+    <el-dialog v-model="deleteSignatureVisible" draggable :title="$tt('减签人员')" width="700px" height="400px" append-to-body :close-on-click-modal="false">
       <div>
         <el-table :data="deleteUserList" border>
-          <el-table-column prop="nodeName" label="任务名称" />
-          <el-table-column prop="nickName" label="办理人" />
-          <el-table-column label="操作" align="center" width="160">
+          <el-table-column prop="nodeName" :label="$tt('任务名称')" />
+          <el-table-column prop="nickName" :label="$tt('办理人')" />
+          <el-table-column :label="$tt('操作')" align="center" width="160">
             <template #default="scope">
-              <el-button type="danger" size="small" icon="Delete" @click="deleteMultiInstanceUser(scope.row)">删除 </el-button>
+              <el-button type="danger" size="small" icon="Delete" @click="deleteMultiInstanceUser(scope.row)">{{ $tt('删除') }}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -139,6 +127,7 @@
 </template>
 
 <script setup lang="ts">
+import { tt } from '@/utils/i18n';
 import { ref } from 'vue';
 import { ComponentInternalInstance } from 'vue';
 import { ElForm } from 'element-plus';
@@ -232,7 +221,7 @@ const task = ref<FlowTaskVO>({
 });
 const dialog = reactive<DialogOption>({
   visible: false,
-  title: '提示'
+  title: tt('提示')
 });
 //减签弹窗
 const deleteSignatureVisible = ref(false);
@@ -305,7 +294,7 @@ const handleCompleteTask = async () => {
       }
     });
     if (verify) {
-      proxy?.$modal.msgWarning('请选择审批人！');
+      proxy?.$modal.msgWarning(tt('请选择审批人！'));
       return false;
     }
   } else {
@@ -322,14 +311,14 @@ const handleCompleteTask = async () => {
     });
     form.value.flowCopyList = flowCopyList;
   }
-  await proxy?.$modal.confirm('是否确认提交？');
+  await proxy?.$modal.confirm(tt('是否确认提交？'));
   loading.value = true;
   buttonDisabled.value = true;
   try {
     await completeTask(form.value);
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    proxy?.$modal.msgSuccess(tt('操作成功'));
   } finally {
     loading.value = false;
     buttonDisabled.value = false;
@@ -352,7 +341,7 @@ const handleBackProcessOpen = async () => {
 /** 驳回流程 */
 const handleBackProcess = async () => {
   backForm.value.taskId = taskId.value;
-  await proxy?.$modal.confirm('是否确认驳回到申请人？');
+  await proxy?.$modal.confirm(tt('是否确认驳回到申请人？'));
   loading.value = true;
   backLoading.value = true;
   backButtonDisabled.value = true;
@@ -364,7 +353,7 @@ const handleBackProcess = async () => {
   backLoading.value = false;
   backButtonDisabled.value = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  proxy?.$modal.msgSuccess(tt('操作成功'));
 };
 //取消
 const cancel = async () => {
@@ -406,7 +395,7 @@ const addMultiInstanceUser = async (data) => {
       message: form.value.message,
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await proxy?.$modal.confirm(tt('是否确认提交？'));
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'addSignature').finally(() => {
@@ -415,14 +404,14 @@ const addMultiInstanceUser = async (data) => {
     });
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    proxy?.$modal.msgSuccess(tt('操作成功'));
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    proxy?.$modal.msgWarning(tt('请选择用户！'));
   }
 };
 //减签
 const deleteMultiInstanceUser = async (row) => {
-  await proxy?.$modal.confirm('是否确认提交？');
+  await proxy?.$modal.confirm(tt('是否确认提交？'));
   loading.value = true;
   buttonDisabled.value = true;
   const taskOperationBo = reactive<TaskOperationBo>({
@@ -437,7 +426,7 @@ const deleteMultiInstanceUser = async (row) => {
   });
   dialog.visible = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  proxy?.$modal.msgSuccess(tt('操作成功'));
 };
 //打开转办
 const openTransferTask = () => {
@@ -452,7 +441,7 @@ const handleTransferTask = async (data) => {
       message: form.value.message,
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await proxy?.$modal.confirm(tt('是否确认提交？'));
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'transferTask').finally(() => {
@@ -461,9 +450,9 @@ const handleTransferTask = async (data) => {
     });
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    proxy?.$modal.msgSuccess(tt('操作成功'));
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    proxy?.$modal.msgWarning(tt('请选择用户！'));
   }
 };
 
@@ -480,7 +469,7 @@ const handleDelegateTask = async (data) => {
       message: form.value.message,
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await proxy?.$modal.confirm(tt('是否确认提交？'));
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'delegateTask').finally(() => {
@@ -489,9 +478,9 @@ const handleDelegateTask = async (data) => {
     });
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    proxy?.$modal.msgSuccess(tt('操作成功'));
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    proxy?.$modal.msgWarning(tt('请选择用户！'));
   }
 };
 //终止任务
@@ -500,7 +489,7 @@ const handleTerminationTask = async () => {
     taskId: taskId.value,
     comment: form.value.message
   };
-  await proxy?.$modal.confirm('是否确认终止？');
+  await proxy?.$modal.confirm(tt('是否确认终止？'));
   loading.value = true;
   buttonDisabled.value = true;
   await terminationTask(params).finally(() => {
@@ -509,7 +498,7 @@ const handleTerminationTask = async () => {
   });
   dialog.visible = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  proxy?.$modal.msgSuccess(tt('操作成功'));
 };
 const handleTaskUser = async () => {
   const data = await currentTaskAllUser(taskId.value);
@@ -524,7 +513,7 @@ const handleTaskUser = async () => {
 // 选择人员
 const choosePeople = async (data) => {
   if (!data.permissionFlag) {
-    proxy?.$modal.msgError('没有可选择的人员，请联系管理员！');
+    proxy?.$modal.msgError(tt('没有可选择的人员，请联系管理员！'));
   }
   popUserIds.value = data.permissionFlag;
   nodeCode.value = data.nodeCode;
