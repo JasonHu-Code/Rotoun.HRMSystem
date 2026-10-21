@@ -1,14 +1,25 @@
 <template>
-  <div class="login">
-    <!-- 动态背景层：原图推拉 + 光带扫过 + 流动光斑 + 漂浮微尘，纯 CSS 实现，不引第三方库 -->
+  <div ref="loginRoot" class="login">
+    <!-- 动态背景层：底图推拉 + 光带扫过 + 流动光斑 + 漂浮方块（CSS 3D）+ 粒子场（canvas） -->
     <div class="login-bg" aria-hidden="true">
-      <div class="bg-photo"></div>
+      <div class="bg-tilt"><div class="bg-photo"></div></div>
       <div class="sweep sweep-1"></div>
       <div class="sweep sweep-2"></div>
       <div class="glow glow-1"></div>
       <div class="glow glow-2"></div>
       <div class="glow glow-3"></div>
-      <div class="particles"></div>
+      <!--
+        底图里的立方体是一张平面图上的像素，无法单独移动。
+        这里用 CSS 3D 叠一层同风格的玻璃方块：真实的立方体才能自转、漂浮、躲鼠标。
+      -->
+      <div class="cubes">
+        <div class="cube cube-a"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="cube cube-b"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="cube cube-c"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="cube cube-d"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <!-- 粒子层单独用 canvas：CSS 只能整层位移，做不到单粒子运动与鼠标追随 -->
+      <canvas ref="particleCanvas" class="particle-canvas"></canvas>
     </div>
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <div class="title-box">
@@ -99,6 +110,7 @@ import { LoginData, TenantVO } from '@/api/types';
 import { to } from 'await-to-js';
 import { HttpStatus } from '@/enums/RespEnum';
 import { useI18n } from 'vue-i18n';
+import { createParticleField } from '@/utils/particle-field';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -238,10 +250,38 @@ const doSocialLogin = (type: string) => {
   });
 };
 
+// 背景粒子场：生命周期与页面绑定，离开登录页必须销毁，
+// 否则 rAF 与 window 上的 pointermove 监听会一直活着，进入系统后仍在空转
+const particleCanvas = ref<HTMLCanvasElement>();
+const loginRoot = ref<HTMLElement>();
+let particleField: { destroy: () => void } | null = null;
+
+// 把鼠标位置归一化成 -1 ~ 1 写进 CSS 变量，驱动底图透视与方块视差。
+// 只改变量、插值交给 CSS transition：每帧在 JS 里写 transform 会触发样式重算，
+// 而这个效果只需要"跟随"，不需要逐帧精度。
+const onScenePointerMove = (e: PointerEvent) => {
+  const root = loginRoot.value;
+  if (!root) {
+    return;
+  }
+  root.style.setProperty('--mx', ((e.clientX / window.innerWidth - 0.5) * 2).toFixed(3));
+  root.style.setProperty('--my', ((e.clientY / window.innerHeight - 0.5) * 2).toFixed(3));
+};
+
 onMounted(() => {
   getCode();
   initTenantList();
   getLoginData();
+  if (particleCanvas.value) {
+    particleField = createParticleField(particleCanvas.value);
+  }
+  window.addEventListener('pointermove', onScenePointerMove, { passive: true });
+});
+
+onUnmounted(() => {
+  particleField?.destroy();
+  particleField = null;
+  window.removeEventListener('pointermove', onScenePointerMove);
 });
 </script>
 
@@ -265,6 +305,22 @@ onMounted(() => {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  // 透视挂在这一层，倾斜的子元素才会有"近大远小"，否则只是平面旋转
+  perspective: 1400px;
+}
+
+// 底图里的立方体是平面图上的像素，无法单独移动。
+// 让整幅底图随鼠标做 rotateX/rotateY，画里的方块就会产生明显的立体位移——
+// 这是不改图、不替换设计的前提下，唯一能让"图里的方块"动起来的做法。
+// 倾斜单独包一层，是因为 .bg-photo 自己的 transform 已被推拉动画占用，
+// 同属性会互相覆盖；分层后两个变换可以叠加。
+.bg-tilt {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(calc(var(--my, 0) * 2.4deg)) rotateY(calc(var(--mx, 0) * -3.2deg)) scale(1.06);
+  // 用 transition 而不是每帧写 transform：插值交给合成器，JS 只需在鼠标移动时写两个变量
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 // 底图单独一层做推拉。
@@ -342,13 +398,201 @@ onMounted(() => {
   animation: glow-drift-c 12s ease-in-out infinite;
 }
 
-.particles {
+// 漂浮方块层：真实的 CSS 3D 立方体，才会自转与漂浮
+.cubes {
   position: absolute;
-  inset: -30%;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.85) 1.6px, transparent 2px);
-  background-size: 96px 96px;
-  opacity: 0.3;
-  animation: particle-rise 26s linear infinite;
+  inset: 0;
+  z-index: 1;
+  perspective: 1000px;
+  // 与底图的旋转方向相反、幅度更小，形成视差层次
+  transform: translate3d(calc(var(--mx, 0) * 18px), calc(var(--my, 0) * 18px), 0);
+  transition: transform 700ms ease-out;
+}
+
+.cube {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  transform-style: preserve-3d;
+  opacity: var(--o, 0.6);
+  // 轻微模糊：原图的方块带景深，锐利的边会显得是"贴上去的"
+  filter: blur(0.8px);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.cube i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  background: var(--face);
+  box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.34);
+  // 背面不画，省一半填充率；半透明玻璃本身也不需要实体背面
+  backface-visibility: hidden;
+}
+
+// 六个面若用同一亮度，立方体会退化成"两个相同的方块"，看不出立体。
+// 这里用遮罩压暗侧面/背面，模拟顶面受光、侧面背光——不用 filter 是因为
+// filter 会给元素创建包含块，破坏 preserve-3d 的 3D 渲染。
+.cube i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(6, 40, 90, var(--shade, 0));
+}
+
+.cube i:nth-child(1) {
+  --shade: 0.04;
+}
+.cube i:nth-child(2) {
+  --shade: 0.16;
+}
+.cube i:nth-child(3) {
+  --shade: 0.12;
+}
+.cube i:nth-child(4) {
+  --shade: 0.08;
+}
+.cube i:nth-child(5) {
+  --shade: 0;
+}
+.cube i:nth-child(6) {
+  --shade: 0.2;
+}
+
+// 六个面拼成立方体。--s 是边长，各面沿 Z 轴外推半个边长
+.cube i:nth-child(1) {
+  transform: translateZ(calc(var(--s) / 2));
+}
+.cube i:nth-child(2) {
+  transform: rotateY(180deg) translateZ(calc(var(--s) / 2));
+}
+.cube i:nth-child(3) {
+  transform: rotateY(90deg) translateZ(calc(var(--s) / 2));
+}
+.cube i:nth-child(4) {
+  transform: rotateY(-90deg) translateZ(calc(var(--s) / 2));
+}
+.cube i:nth-child(5) {
+  transform: rotateX(90deg) translateZ(calc(var(--s) / 2));
+}
+.cube i:nth-child(6) {
+  transform: rotateX(-90deg) translateZ(calc(var(--s) / 2));
+}
+
+// 五块分布在各角，刻意避开中间的登录卡片
+.cube-a {
+  --s: 92px;
+  --o: 0.62;
+  --face: linear-gradient(135deg, rgba(190, 235, 255, 0.66), rgba(110, 190, 255, 0.3));
+  left: 4%;
+  top: 21%;
+  animation-name: cube-float-a;
+  animation-duration: 24s;
+}
+
+.cube-b {
+  --s: 108px;
+  --o: 0.55;
+  --face: linear-gradient(135deg, rgba(130, 215, 245, 0.5), rgba(60, 160, 220, 0.2));
+  left: 9%;
+  bottom: 9%;
+  animation-name: cube-float-b;
+  animation-duration: 31s;
+  animation-delay: -8s;
+}
+
+.cube-c {
+  --s: 74px;
+  --o: 0.55;
+  --face: linear-gradient(135deg, rgba(180, 165, 255, 0.5), rgba(120, 100, 220, 0.2));
+  right: 5%;
+  top: 32%;
+  animation-name: cube-float-c;
+  animation-duration: 19s;
+  animation-delay: -4s;
+}
+
+.cube-d {
+  --s: 96px;
+  --o: 0.6;
+  --face: linear-gradient(135deg, rgba(255, 185, 150, 0.5), rgba(240, 130, 100, 0.2));
+  right: 4%;
+  bottom: 14%;
+  animation-name: cube-float-d;
+  animation-duration: 27s;
+  animation-delay: -12s;
+}
+
+// 每个 keyframe 同时管漂浮位移与自转：
+// 拆成两个动画会因为都写 transform 而互相覆盖，只能合成一条曲线
+@keyframes cube-float-a {
+  0% {
+    transform: translate3d(0, 0, 0) rotateX(-16deg) rotateY(0deg);
+  }
+  25% {
+    transform: translate3d(8px, -16px, 0) rotateX(-10deg) rotateY(90deg);
+  }
+  50% {
+    transform: translate3d(-5px, -28px, 0) rotateX(-22deg) rotateY(180deg);
+  }
+  75% {
+    transform: translate3d(-9px, -12px, 0) rotateX(-12deg) rotateY(270deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(-16deg) rotateY(360deg);
+  }
+}
+
+@keyframes cube-float-b {
+  0% {
+    transform: translate3d(0, 0, 0) rotateX(-8deg) rotateY(20deg);
+  }
+  33% {
+    transform: translate3d(-12px, -20px, 0) rotateX(-20deg) rotateY(140deg);
+  }
+  66% {
+    transform: translate3d(10px, -32px, 0) rotateX(-6deg) rotateY(255deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(-8deg) rotateY(380deg);
+  }
+}
+
+@keyframes cube-float-c {
+  0% {
+    transform: translate3d(0, 0, 0) rotateX(-24deg) rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(-10px, 18px, 0) rotateX(-12deg) rotateY(190deg) scale(1.06);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(-24deg) rotateY(360deg) scale(1);
+  }
+}
+
+@keyframes cube-float-d {
+  0% {
+    transform: translate3d(0, 0, 0) rotateX(-14deg) rotateY(30deg);
+  }
+  50% {
+    transform: translate3d(14px, -22px, 0) rotateX(-26deg) rotateY(210deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(-14deg) rotateY(390deg);
+  }
+}
+
+// 粒子层：覆盖在光斑之上，自身不吃鼠标事件（背景层整体 pointer-events: none，
+// 鼠标坐标由 window 上的 pointermove 统一采集，所以不影响表单输入）
+.particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
 }
 
 @keyframes bg-drift {
@@ -399,16 +643,6 @@ onMounted(() => {
   }
 }
 
-// 位移量取贴图尺寸的整数倍才能无缝衔接：96 × 10 = 960
-@keyframes particle-rise {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: -96px -960px;
-  }
-}
-
 @keyframes card-in {
   from {
     opacity: 0;
@@ -431,18 +665,38 @@ onMounted(() => {
 }
 
 // 尊重系统的"减少动态效果"设置：无障碍要求，也避免低配机器掉帧
+// 窄屏下五块立方体会挤到登录卡片上，直接不显示，保留粒子与光带
+@media (max-width: 860px) {
+  .cubes {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bg-photo,
   .sweep,
   .glow,
-  .particles,
+  .cube,
   .login-form,
   .title-brand .login-logo {
     animation: none !important;
   }
 
+  // 倾斜与视差也一并取消，只留静态构图
+  .bg-tilt,
+  .cubes {
+    transform: none !important;
+    transition: none !important;
+  }
+
   .sweep {
     opacity: 0;
+  }
+
+  // canvas 的降级由 JS 判断（只画一帧静态、不注册鼠标监听），
+  // 这里只是兜底：万一 JS 分支没走到，至少不显示一层会动的粒子
+  .particle-canvas {
+    opacity: 0.5;
   }
 }
 
