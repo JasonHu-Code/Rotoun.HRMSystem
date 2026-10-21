@@ -5,19 +5,31 @@
  * 这里把每个粒子当成独立对象，才能做到"方块自转 + 向鼠标聚集环绕 + 鼠标柔光跟随"。
  *
  * 运动的两个分量是分开的，这是关键：
- *   - 漂移分量（dx/dy）恒定，保证鼠标不动、移开时背景依然是活的
+ *   - 漂移分量（dx/dy + 摆动）恒定，保证鼠标不动、移开时背景依然是活的
  *   - 交互分量（ivx/ivy）由鼠标产生并持续衰减到 0，所以追随是"被牵引"而非"被钉死"
+ *
+ * 无光标时的"无规则飘散"靠三层叠加，缺一层都会显得规律：
+ *   1. 每颗粒子的初始方向是全圆随机、速度各不相同 —— 打破"整体同向"
+ *   2. 低频摆动相位（x/y 用不同频率）让轨迹是曲线而非直线 —— 打破"匀速直线"
+ *   3. 明暗呼吸相位随机 —— 打破"整屏亮度一致"
  */
 
 interface Particle {
   x: number;
   y: number;
-  /** 自由漂移速度（恒定） */
+  /** 自由漂移速度（由随机方向 + 随机速度生成，恒定） */
   dx: number;
   dy: number;
   /** 鼠标交互产生的速度分量（每帧衰减） */
   ivx: number;
   ivy: number;
+  /** 低频摆动：相位 / 相位推进速度 / 摆动幅度 */
+  phase: number;
+  phaseSpeed: number;
+  amp: number;
+  /** 明暗呼吸：相位 / 推进速度 */
+  twinkle: number;
+  twinkleSpeed: number;
   size: number;
   alpha: number;
   /** true = 方块（带自转），false = 圆点 */
@@ -38,10 +50,12 @@ export interface ParticleFieldOptions {
 }
 
 const DEFAULTS: Required<ParticleFieldOptions> = {
-  density: 15000,
-  maxCount: 130,
+  // 每 10500 平方像素一颗粒子、上限 178：比原来的 130 多约三成，
+  // 肉眼能感到"更满"但还不会糊成一片（再往上连线会织成网，反而抢主体）
+  density: 10500,
+  maxCount: 178,
   influence: 190,
-  linkDistance: 108
+  linkDistance: 98
 };
 
 // 白色为主，少量呼应品牌橙，避免整屏花掉
@@ -87,20 +101,30 @@ export function createParticleField(canvas: HTMLCanvasElement, options: Particle
 
   const seed = () => {
     const count = Math.min(opts.maxCount, Math.round((width * height) / opts.density));
-    particles = Array.from({ length: count }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      dx: rand(-0.16, 0.16),
-      dy: rand(-0.22, -0.02),
-      ivx: 0,
-      ivy: 0,
-      size: rand(1.1, 2.9),
-      alpha: rand(0.25, 0.72),
-      square: Math.random() < 0.4,
-      angle: Math.random() * Math.PI * 2,
-      spin: rand(-0.012, 0.012),
-      color: COLORS[Math.floor(Math.random() * COLORS.length)]
-    }));
+    particles = Array.from({ length: count }, () => {
+      // 方向全圆随机、速度各不相同：原来统一向上飘，看久了就是"一层布在挪"
+      const dir = Math.random() * Math.PI * 2;
+      const speed = rand(0.05, 0.2);
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        dx: Math.cos(dir) * speed,
+        dy: Math.sin(dir) * speed,
+        ivx: 0,
+        ivy: 0,
+        phase: Math.random() * Math.PI * 2,
+        phaseSpeed: rand(0.004, 0.016),
+        amp: rand(0.05, 0.16),
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: rand(0.01, 0.035),
+        size: rand(1, 2.6),
+        alpha: rand(0.25, 0.72),
+        square: Math.random() < 0.4,
+        angle: Math.random() * Math.PI * 2,
+        spin: rand(-0.012, 0.012),
+        color: COLORS[Math.floor(Math.random() * COLORS.length)]
+      };
+    });
   };
 
   // 绘制与循环分开：减弱动效模式只需要画一帧，不能顺便把下一帧排上
@@ -144,8 +168,16 @@ export function createParticleField(canvas: HTMLCanvasElement, options: Particle
 
       p.ivx *= 0.94;
       p.ivy *= 0.94;
-      p.x += p.dx + p.ivx;
-      p.y += p.dy + p.ivy;
+
+      // 低频摆动：x/y 用不同频率（1.37 倍）才不会退化成一条斜线上的往返，
+      // 叠在直线漂移上之后轨迹是缓慢游走的曲线，也就是"飘散"而不是"平移"
+      p.phase += p.phaseSpeed;
+      p.twinkle += p.twinkleSpeed;
+      const swayX = Math.cos(p.phase) * p.amp;
+      const swayY = Math.sin(p.phase * 1.37) * p.amp;
+
+      p.x += p.dx + p.ivx + swayX;
+      p.y += p.dy + p.ivy + swayY;
       if (p.square) {
         p.angle += p.spin;
       }
@@ -156,8 +188,12 @@ export function createParticleField(canvas: HTMLCanvasElement, options: Particle
       if (p.y < -20) p.y = height + 20;
       if (p.y > height + 20) p.y = -20;
 
+      // 明暗呼吸：每颗粒子有自己的相位，整屏亮度就不会是死板的一层
+      let alpha = p.alpha + Math.sin(p.twinkle) * 0.16;
+      if (alpha < 0.06) {
+        alpha = 0.06;
+      }
       // 越靠近鼠标越亮，强化"被牵引"的反馈
-      let alpha = p.alpha;
       if (pointer.active) {
         const d = Math.hypot(pointer.softX - p.x, pointer.softY - p.y);
         if (d < opts.influence) {
@@ -189,7 +225,8 @@ export function createParticleField(canvas: HTMLCanvasElement, options: Particle
         }
         const d = Math.hypot(dx, dy);
         if (d < opts.linkDistance) {
-          ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - d / opts.linkDistance) * 0.14})`;
+          // 粒子变多后连线数量是平方级增长，透明度相应下调，避免织成一张网
+          ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - d / opts.linkDistance) * 0.11})`;
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
