@@ -49,9 +49,4 @@ public @interface HrDataScope {
      * 员工列名，默认 {@code employee_id}；查 employee 主表时应显式写 {@code "id"}。
      */
     String empColumn() default "employee_id";
-
-    /**
-     * 组织路径列名，默认 {@code org_path}；ORG_TREE 前缀匹配用。
-     */
-    String orgPathColumn() default "org_path";
 }

@@ -93,7 +93,7 @@ public class HrDataScopeSqlBuilder {
             conditions.add(in(ann.orgAlias(), ann.orgColumn(), orgIds));
         }
         for (String prefix : pathPrefixes) {
-            conditions.add(ann.orgAlias() + "." + ann.orgPathColumn() + " LIKE '" + escapeLike(prefix) + "%'");
+            conditions.add(orgSubtree(ann, prefix));
         }
         if (self) {
             Long employeeId = ctx.getEmployeeId();
@@ -109,6 +109,23 @@ public class HrDataScopeSqlBuilder {
             return DENY;
         }
         return String.join(" OR ", conditions);
+    }
+
+    /**
+     * 组织子树条件。
+     *
+     * <p>为什么用子查询而不是 {@code org_path LIKE}：{@code org_path} 只存在于 {@code organization} 表，
+     * 而绝大多数业务查询（员工列表、考勤日结果、酬薪明细）里根本没有 join 组织表。
+     * 早先直接把条件拼在 {@code alias.org_path} 上，等于强制每个 SQL 都带组织表别名，
+     * 漏 join 就是一句"Unknown column"——这种错在编译期发现不了，只能靠人记住。
+     *
+     * <p>改成 {@code organization_id IN (SELECT id FROM organization WHERE org_path LIKE ?)} 之后：
+     * 条件只依赖业务表自己的组织列，任何查询都能直接用；子查询走 {@code idx_organization_org_path}，
+     * 组织量级（实测 6 级、数百节点）下开销可忽略。
+     */
+    private String orgSubtree(HrDataScope ann, String prefix) {
+        return ann.orgAlias() + "." + ann.orgColumn() + " IN (SELECT id FROM organization WHERE org_path LIKE '"
+            + escapeLike(prefix) + "%')";
     }
 
     private String in(String alias, String column, List<Long> ids) {

@@ -40,7 +40,8 @@ class HrDataScopeSqlBuilderTest {
         HrDataScopeRule rule = rule(11L, "ORG_TREE", "15");
         rule.setPathPrefix("/1/3/15/");
         HrLoginContext ctx = ctx(rule);
-        assertEquals("em.org_path LIKE '/1/3/15/%'", builder.build(ann, ctx));
+        assertEquals("em.organization_id IN (SELECT id FROM organization WHERE org_path LIKE '/1/3/15/%')",
+            builder.build(ann, ctx));
     }
 
     @Test
@@ -65,7 +66,8 @@ class HrDataScopeSqlBuilderTest {
 
         String condition = builder.build(ann, ctx);
 
-        assertEquals("em.legal_entity_id IN (3) OR em.org_path LIKE '/1/3/15/%'", condition);
+        assertEquals("em.legal_entity_id IN (3) OR em.organization_id IN "
+            + "(SELECT id FROM organization WHERE org_path LIKE '/1/3/15/%')", condition);
     }
 
     @Test
@@ -151,11 +153,6 @@ class HrDataScopeSqlBuilderTest {
             @Override
             public String empColumn() {
                 return "employee_id";
-            }
-
-            @Override
-            public String orgPathColumn() {
-                return "org_path";
             }
         };
     }

@@ -42,6 +42,18 @@
 
 落地情况：`rotoun-job` / `rotoun-workflow` / `rotoun-snailjob-server` 已从 Maven reactor 与 `rotoun-admin` 依赖移除；`warm-flow` 配置与 SpringDoc 工作流分组已清理；新增 `ShedLockConfig`（`@EnableScheduling` + `@EnableSchedulerLock`）。
 
+## 开发进度（截至 2026-10-23）
+
+| 阶段 | 状态 | 说明 |
+|---|---|---|
+| 设计（需求/技术方案/DB/接口/考勤引擎） | ✅ 完成 | 需求 241 条、DB 59 张业务表、接口与引擎设计定稿 |
+| M0 底座改造 | 🟡 12/13 | 数据权限内核 + 登录上下文 + 规则初始化 + 启动自检已完成；剩角色管理页（前端） |
+| 业务功能（组织/员工/考勤/薪酬/审批） | ⬜ 未开始 | 等业务侧《职级标准表》《职位清单》《全员定级表》 |
+| 数据重建（302 人） | ⬜ 未开始 | 属数据重建不属于迁移，见 `docs/HR人事管理系统_需求清单` |
+
+M0 明细与验收数据见 `../3.开发资料/HR系统_M0开发进度_V0.1.md`（仓库外）。
+数据权限的 12 条验收用例已落地为 `rotoun-hr-biz` 的 `HrDataScopeAcceptanceTest`，连真库执行。
+
 ## 目录结构
 
 ```
@@ -53,7 +65,7 @@ Rotoun.HRMSystem/
 │   ├── rotoun-extend/   # 扩展
 │   └── script/         # 上游脚本
 ├── frontend/           # plus-ui 5.X 前端（Vue3 + TS + Element Plus）
-├── db/                 # MySQL 脚本：00 底座表 + 01~06 业务表（按序执行）
+├── db/                 # MySQL 脚本：00 底座表 + 01~07 业务表与数据权限（按序执行）
 ├── docs/               # 需求、技术方案、数据库设计、M0 改造清单、接口、考勤引擎
 ├── .gitignore
 └── README.md
