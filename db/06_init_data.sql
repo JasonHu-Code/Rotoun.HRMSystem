@@ -42,25 +42,30 @@ ON DUPLICATE KEY UPDATE `entity_name` = VALUES(`entity_name`);
 
 
 -- ---------------------------------------------------------------------
--- 二、职级（12 级，附录A初稿）
--- grade_level 1 为最高。job_nature: FRONTLINE一线 / BACKLINE二线
--- grade_stage: DECISION / LEADER / MIDDLE / BASIC / EXECUTION
+-- 二、职级（16 级 E0–E15，取自现系统「组织管理 / 职位级别」清单，2026-10-23）
+-- grade_level 1 为最高（E0 → 1，E15 → 16）
+-- job_nature: FRONTLINE一线 / BACKLINE二线；grade_stage: DECISION/LEADER/MIDDLE/BASIC/EXECUTION
+-- grade_desc 里的"关联职位数"用于职位清单导入后对账，合计 770
 -- ---------------------------------------------------------------------
 INSERT INTO `position_grade`
 (`grade_code`,`grade_name`,`grade_level`,`job_nature`,`grade_stage`,`grade_desc`,`effective_date`)
 VALUES
-('L1','董事长级',1,'BACKLINE','DECISION','决策管理层：董事会主席、董事','2026-01-01'),
-('L2','总经理级',2,'BACKLINE','LEADER','领导管理层：集团总经理、子公司总经理','2026-01-01'),
-('L3','副总经理级',3,'BACKLINE','LEADER','领导管理层：副总经理','2026-01-01'),
-('L4','总监级',4,'BACKLINE','MIDDLE','中层管理层：中心主任、总监、副总监','2026-01-01'),
-('L5','部门经理级',5,'BACKLINE','MIDDLE','中层管理层：部门经理','2026-01-01'),
-('L6','主管级',6,'BACKLINE','BASIC','基层管理层：部门副经理、主管','2026-01-01'),
-('L7','班组级',7,'FRONTLINE','BASIC','基层管理层：班长、组长、基层管理员','2026-01-01'),
-('L8','高级专业级',8,'BACKLINE','EXECUTION','执行层：高级工程师、高级专员、高级会计','2026-01-01'),
-('L9','中级专业级',9,'BACKLINE','EXECUTION','执行层：工程师、专员、会计、文员','2026-01-01'),
-('L10','初级专业级',10,'BACKLINE','EXECUTION','执行层：助理工程师、助理、助理文员','2026-01-01'),
-('L11','技工级',11,'FRONTLINE','EXECUTION','执行层：技工、机修工、检验员、叉车工','2026-01-01'),
-('L12','普工与辅助级',12,'FRONTLINE','EXECUTION','执行层：普工、操作工、辅助工、清洁工、搬运工','2026-01-01')
+('E0', '高层管理人员', 1,  'BACKLINE',  'DECISION',  '职级 E0｜原系统关联职位 3 个｜待确认：董事长/董事层', '2026-01-01'),
+('E1', '高层管理人员', 2,  'BACKLINE',  'LEADER',    '职级 E1｜原系统关联职位 3 个', '2026-01-01'),
+('E2', '高层管理人员', 3,  'BACKLINE',  'LEADER',    '职级 E2｜原系统关联职位 14 个', '2026-01-01'),
+('E3', '高层管理人员', 4,  'BACKLINE',  'LEADER',    '职级 E3｜原系统关联职位 26 个', '2026-01-01'),
+('E4', '中层管理人员', 5,  'BACKLINE',  'MIDDLE',    '职级 E4｜原系统关联职位 9 个', '2026-01-01'),
+('E5', '中层管理人员', 6,  'BACKLINE',  'MIDDLE',    '职级 E5｜原系统关联职位 87 个', '2026-01-01'),
+('E6', '中层管理人员', 7,  'BACKLINE',  'MIDDLE',    '职级 E6｜原系统关联职位 37 个', '2026-01-01'),
+('E7', '普通管理人员', 8,  'BACKLINE',  'BASIC',     '职级 E7｜原系统关联职位 103 个｜班长/组长层', '2026-01-01'),
+('E8', '一级员工',     9,  'FRONTLINE', 'EXECUTION', '职级 E8｜原系统关联职位 132 个', '2026-01-01'),
+('E9', '一级员工',     10, 'FRONTLINE', 'EXECUTION', '职级 E9｜原系统关联职位 143 个', '2026-01-01'),
+('E10','一级员工',     11, 'FRONTLINE', 'EXECUTION', '职级 E10｜原系统关联职位 132 个', '2026-01-01'),
+('E11','普通管理人员', 12, 'BACKLINE',  'BASIC',     '职级 E11｜原系统关联职位 17 个｜待确认：为何夹在员工级之间', '2026-01-01'),
+('E12','普通管理人员', 13, 'BACKLINE',  'BASIC',     '职级 E12｜原系统关联职位 12 个｜待确认：同上', '2026-01-01'),
+('E13','一级员工',     14, 'FRONTLINE', 'EXECUTION', '职级 E13｜原系统关联职位 14 个', '2026-01-01'),
+('E14','一级员工',     15, 'FRONTLINE', 'EXECUTION', '职级 E14｜原系统关联职位 20 个', '2026-01-01'),
+('E15','一级员工',     16, 'FRONTLINE', 'EXECUTION', '职级 E15｜原系统关联职位 18 个', '2026-01-01')
 ON DUPLICATE KEY UPDATE `grade_name` = VALUES(`grade_name`), `grade_desc` = VALUES(`grade_desc`);
 
 

@@ -80,7 +80,7 @@
             <el-tooltip v-if="scope.row.roleId !== 1" :content="$tt('删除')" placement="top">
               <el-button v-hasPermi="['system:role:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip v-if="scope.row.roleId !== 1" :content="$tt('数据权限')" placement="top">
+            <el-tooltip v-if="scope.row.roleId !== 1" :content="$tt('数据权限（组织）')" placement="top">
               <el-button v-hasPermi="['system:role:edit']" link type="primary" icon="CircleCheck" @click="handleDataScope(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip v-if="scope.row.roleId !== 1" :content="$tt('分配用户')" placement="top">
@@ -89,6 +89,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <data-scope-rule v-model="ruleOpen" :role="ruleRole" @saved="getList" />
 
       <pagination
         v-if="total > 0"
@@ -192,6 +194,7 @@
 <script setup name="Role" lang="ts">
 import { tt } from '@/utils/i18n';
 import { addRole, changeRoleStatus, dataScope, delRole, getRole, listRole, updateRole, deptTreeSelect } from '@/api/system/role';
+import DataScopeRule from './dataScopeRule.vue';
 import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
 import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
 import { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
@@ -469,15 +472,18 @@ const dataScopeSelectChange = (value: string) => {
   }
 };
 /** 分配数据权限操作 */
-const handleDataScope = async (row: RoleVO) => {
-  const response = await getRole(row.roleId);
-  Object.assign(form.value, response.data);
-  const res = await getRoleDeptTreeSelect(row.roleId);
-  openDataScope.value = true;
-  dialog.title = tt('分配数据权限');
-  await nextTick(() => {
-    deptRef.value?.setCheckedKeys(res.checkedKeys);
-  });
+/**
+ * 数据权限入口。
+ *
+ * 原来弹的是底座那套「数据范围 + 部门树」（读 sys_role.data_scope / sys_role_dept），
+ * 本系统已废弃那条链路（组织改用自建 organization），继续保留入口只会配出一个没人读的字段。
+ * 现在改开组织维度的规则抽屉；底座的对话框代码暂留在本文件里，随底座升级一并清理。
+ */
+const ruleOpen = ref(false);
+const ruleRole = ref<RoleVO | null>(null);
+const handleDataScope = (row: RoleVO) => {
+  ruleRole.value = row;
+  ruleOpen.value = true;
 };
 /** 提交按钮（数据权限） */
 const submitDataScope = async () => {

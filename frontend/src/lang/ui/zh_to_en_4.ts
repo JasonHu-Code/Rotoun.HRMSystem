@@ -109,4 +109,28 @@ export default {
   未知: 'Unknown',
   清空数据: 'Clear Data',
   通知: 'Notification',
+  // ===== 数据权限（组织维度） =====
+  '数据权限（组织）': 'Data Scope (Org)',
+  '权限范围': 'Scope',
+  '范围对象': 'Target',
+  '可导出': 'Exportable',
+  '全量': 'All',
+  '本公司': 'Own company',
+  '组织及子树': 'Org & subtree',
+  '本组织': 'Own org',
+  '仅本人': 'Self only',
+  '选择法人': 'Select company',
+  '选择组织': 'Select organization',
+  '组织架构尚未导入': 'Org tree not imported yet',
+  '无需选择': 'Not required',
+  '选填': 'Optional',
+  '添加一条范围': 'Add rule',
+  '请为每一行选择范围对象': 'Please choose a target for every rule',
+  '保存成功': 'Saved successfully',
+  '规则取并集：多条规则时，能看到任一条范围内的数据；没有任何规则则该角色看不到业务数据。':
+    'Rules are combined with OR. A role with no rules cannot see any business data.',
+  '「全量」已包含所有数据，不能与其他范围同时配置；配了全量的角色不需要再加其它规则。':
+    '"All" already covers every record and cannot be combined with other scopes.',
+  '「全量」已包含所有数据，不能与其他范围同时配置': '"All" already covers every record and cannot be combined with other scopes',
+
 };
